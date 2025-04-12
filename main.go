@@ -30,6 +30,8 @@ func main() {
 	fsHandler := http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))
 	mux.Handle("/app/", fsHandler)
 	mux.HandleFunc("GET /app/home", apiCfg.HandlerIndex)
+	mux.HandleFunc("GET /app/join", apiCfg.HandlerJoin)
+	mux.HandleFunc("POST /app/join", apiCfg.HandlerCreateUser)
 
 	srv := &http.Server{
 		Addr:    ":" + port,

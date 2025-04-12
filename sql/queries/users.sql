@@ -1,11 +1,11 @@
 -- name: CreateUser :one
 insert into users (id, created_at, updated_at, name, img_url)
 values (
+	gen_random_uuid(),
+	NOW(),
+	NOW(),
 	$1,
-	$2,
-	$3,
-	$4,
-	$5
+	$2
 )
 returning *;
 
