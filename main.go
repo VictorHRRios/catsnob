@@ -32,6 +32,8 @@ func main() {
 	mux.HandleFunc("GET /app/home", apiCfg.HandlerIndex)
 	mux.HandleFunc("GET /app/join", apiCfg.HandlerJoin)
 	mux.HandleFunc("POST /app/join", apiCfg.HandlerCreateUser)
+	mux.HandleFunc("GET /admin/createArtistDisc", apiCfg.HandlerFormArtistDisc)
+	mux.HandleFunc("POST /admin/createArtistDisc", apiCfg.HandlerCreateArtistDisc)
 
 	srv := &http.Server{
 		Addr:    ":" + port,

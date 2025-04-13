@@ -1,28 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
+{{ define "title" }}Join{{ end }}
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="assets/styles.css">
-	<title>CATSNOB</title>
-</head>
-
-<body>
-		<-- abstract this
-	<header>
-		<nav>
-			<div>LOGO</div>
-			<div>CATSNOB</div>
-			<button class="profile-button">Profile</button>
-		</nav>
-	</header>
-		<-- abstract this
-    <form method="post" action="/app/join">
-	<div>
-	    <label for="name">username</label>
-	</div>
-	<input id="name" type="text" name="name" placeholder="Enter your username">
-	<button id="submit" type="submit">Create</button>
-    </form>
-</body>
+{{ define "content" }}
+<form method="post" action="/app/join">
+<div>
+    <label for="name">username</label>
+</div>
+<input id="name" type="text" name="name" placeholder="Enter your username">
+<button id="submit" type="submit">Create</button>
+</form>
+{{ end }}

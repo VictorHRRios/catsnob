@@ -12,7 +12,7 @@ import (
 
 func (cfg *ApiConfig) HandlerJoin(w http.ResponseWriter, r *http.Request) {
 	tmplPath := filepath.Join("templates", "register.html")
-	tmpl, err := template.ParseFiles(tmplPath)
+	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
 	}

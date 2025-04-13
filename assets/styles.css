@@ -8,6 +8,7 @@ body {
 header {
   background-color: black;
   padding: 10px;
+  min-height: 5vh
 }
 
 nav {
@@ -18,38 +19,39 @@ nav {
   color: white;
 }
 
-nav div:nth-child(2) {
-  border-radius: 10px;
-  padding: 10px 30px;
-}
-
-.top-button {
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  background: none;
+main {
+  min-height: 80vh;
 }
 
 footer {
-  margin-top: 50px;
   font-size: 12px;
+  min-height: 15vh;
+  background-color: black;
+  padding: 2rem;
+  color: white;
+}
+a.nav {
+  color: white;
+}
+a {
+  color: black;
+  font-size: 20px;
+  text-decoration: none;
+
 }
 
+
 div.header {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   border-bottom: 1px   solid gray;
-  padding: 10px 0;
+  min-height: 2rem;
+}
+
+a.selected {
+  background-color: gray;
 }
 
 #content {
     margin: 0 20vh;
-}
-
-.profile-button {
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  background: none;
-  color: white;
 }
