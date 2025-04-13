@@ -9,6 +9,10 @@ import (
 
 const baseUrl = "https://www.theaudiodb.com/api/v1/json/2/"
 
+// Funciones para obtener estructuras usando la api de theaudiodb.com
+// Casi todas siguen un formato similar maybe se puede usar un middleware
+// para DRYear el codigo
+
 func GetArtist(artistId *string) (Artist, error) {
 	fullUrl := baseUrl + "artist.php?i="
 	if artistId == nil {
