@@ -1,0 +1,11 @@
+{{ define "title" }}Create Artist{{ end }}
+
+{{ define "content" }}
+<form method="post" action="/admin/createArtistDisc">
+<div>
+    <label for="artist_id">Artist ID:</label>
+</div>
+<input id="artist_id" type="text" name="artist_id" placeholder="Enter artist id">
+<button id="submit" type="submit">Create</button>
+</form>
+{{ end }}

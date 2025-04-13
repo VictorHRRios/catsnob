@@ -15,10 +15,9 @@ type Artist struct {
 	ID        uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	BornAt    time.Time
+	FormedAt  string
 	Name      string
 	Biography sql.NullString
-	Type      string
 	Genre     string
 	ImgUrl    string
 }
