@@ -1,16 +1,16 @@
 -- +goose Up
 
-create table artists(
+create table albums(
 	id uuid primary key,
 	created_at timestamp not null,
 	updated_at timestamp not null,
-	formed_at text not null,
 	name text unique not null,
 	name_slug text unique not null,
-	biography text,
 	genre text not null,
-	img_url text not null
+	img_url text not null,
+	artist_id uuid not null,
+	foreign key (artist_id) references artists(id) on delete cascade
 );
 
 -- +goose Down
-drop table artists;
+drop table albums;

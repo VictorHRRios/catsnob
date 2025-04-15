@@ -1,0 +1,11 @@
+{{ define "title" }}User Profile{{ end }}
+
+{{ define "content" }}
+
+<h1>{{ .Name }}</h1>
+<img src="{{ .Img }}">
+<h2>{{ .FormedAt }}</h2>
+<h2>{{ .Genre }}</h2>
+<p>{{ .Biography }}</p>
+
+{{ end }}

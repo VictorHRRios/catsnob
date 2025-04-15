@@ -23,15 +23,12 @@ type ArtistAlbums struct {
 		IDArtist         string `json:"idArtist"`
 		IDLabel          string `json:"idLabel"`
 		StrAlbum         string `json:"strAlbum"`
-		StrArtist        string `json:"strArtist"`
 		IntYearReleased  string `json:"intYearReleased"`
 		StrGenre         string `json:"strGenre"`
 		StrLabel         string `json:"strLabel"`
 		StrAlbumThumb    string `json:"strAlbumThumb"`
 		StrDescriptionEN string `json:"strDescriptionEN,omitempty"`
 		StrDescriptionES any    `json:"strDescriptionES"`
-		IntScore         string `json:"intScore"`
-		IntScoreVotes    string `json:"intScoreVotes"`
 	} `json:"album"`
 }
 
@@ -41,8 +38,6 @@ type AlbumTracks struct {
 		IDAlbum        string `json:"idAlbum"`
 		IDArtist       string `json:"idArtist"`
 		StrTrack       string `json:"strTrack"`
-		StrAlbum       string `json:"strAlbum"`
-		StrArtist      string `json:"strArtist"`
 		IntDuration    string `json:"intDuration"`
 		StrGenre       string `json:"strGenre"`
 		IntTrackNumber string `json:"intTrackNumber"`

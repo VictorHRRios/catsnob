@@ -11,7 +11,7 @@ import (
 )
 
 const createArtist = `-- name: CreateArtist :one
-insert into artists (id, created_at, updated_at, formed_at, name, biography, genre, img_url)
+insert into artists (id, created_at, updated_at, formed_at, name, name_slug, biography, genre, img_url)
 values (
 	gen_random_uuid(),
 	NOW(),
@@ -20,14 +20,16 @@ values (
 	$2,
 	$3,
 	$4,
-	$5
+	$5,
+	$6
 )
-returning id, created_at, updated_at, formed_at, name, biography, genre, img_url
+returning id, created_at, updated_at, formed_at, name, name_slug, biography, genre, img_url
 `
 
 type CreateArtistParams struct {
 	FormedAt  string
 	Name      string
+	NameSlug  string
 	Biography sql.NullString
 	Genre     string
 	ImgUrl    string
@@ -37,6 +39,7 @@ func (q *Queries) CreateArtist(ctx context.Context, arg CreateArtistParams) (Art
 	row := q.db.QueryRowContext(ctx, createArtist,
 		arg.FormedAt,
 		arg.Name,
+		arg.NameSlug,
 		arg.Biography,
 		arg.Genre,
 		arg.ImgUrl,
@@ -48,6 +51,7 @@ func (q *Queries) CreateArtist(ctx context.Context, arg CreateArtistParams) (Art
 		&i.UpdatedAt,
 		&i.FormedAt,
 		&i.Name,
+		&i.NameSlug,
 		&i.Biography,
 		&i.Genre,
 		&i.ImgUrl,
@@ -56,7 +60,7 @@ func (q *Queries) CreateArtist(ctx context.Context, arg CreateArtistParams) (Art
 }
 
 const getArtist = `-- name: GetArtist :one
-select id, created_at, updated_at, formed_at, name, biography, genre, img_url from artists
+select id, created_at, updated_at, formed_at, name, name_slug, biography, genre, img_url from artists
 where name = $1
 `
 
@@ -69,6 +73,7 @@ func (q *Queries) GetArtist(ctx context.Context, name string) (Artist, error) {
 		&i.UpdatedAt,
 		&i.FormedAt,
 		&i.Name,
+		&i.NameSlug,
 		&i.Biography,
 		&i.Genre,
 		&i.ImgUrl,
@@ -77,7 +82,7 @@ func (q *Queries) GetArtist(ctx context.Context, name string) (Artist, error) {
 }
 
 const getArtists = `-- name: GetArtists :many
-select id, created_at, updated_at, formed_at, name, biography, genre, img_url from artists
+select id, created_at, updated_at, formed_at, name, name_slug, biography, genre, img_url from artists
 `
 
 func (q *Queries) GetArtists(ctx context.Context) ([]Artist, error) {
@@ -95,6 +100,7 @@ func (q *Queries) GetArtists(ctx context.Context) ([]Artist, error) {
 			&i.UpdatedAt,
 			&i.FormedAt,
 			&i.Name,
+			&i.NameSlug,
 			&i.Biography,
 			&i.Genre,
 			&i.ImgUrl,
@@ -113,7 +119,7 @@ func (q *Queries) GetArtists(ctx context.Context) ([]Artist, error) {
 }
 
 const getTop12Artists = `-- name: GetTop12Artists :many
-select id, created_at, updated_at, formed_at, name, biography, genre, img_url from artists limit 12
+select id, created_at, updated_at, formed_at, name, name_slug, biography, genre, img_url from artists limit 12
 `
 
 func (q *Queries) GetTop12Artists(ctx context.Context) ([]Artist, error) {
@@ -131,6 +137,7 @@ func (q *Queries) GetTop12Artists(ctx context.Context) ([]Artist, error) {
 			&i.UpdatedAt,
 			&i.FormedAt,
 			&i.Name,
+			&i.NameSlug,
 			&i.Biography,
 			&i.Genre,
 			&i.ImgUrl,

@@ -11,12 +11,24 @@ import (
 	"github.com/google/uuid"
 )
 
+type Album struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Name      string
+	NameSlug  string
+	Genre     string
+	ImgUrl    string
+	ArtistID  uuid.UUID
+}
+
 type Artist struct {
 	ID        uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	FormedAt  string
 	Name      string
+	NameSlug  string
 	Biography sql.NullString
 	Genre     string
 	ImgUrl    string
@@ -28,6 +40,18 @@ type ArtistFollow struct {
 	UpdatedAt time.Time
 	UserID    uuid.UUID
 	ArtistID  uuid.UUID
+}
+
+type Track struct {
+	ID               uuid.UUID
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	Name             string
+	NameSlug         string
+	Duration         int32
+	AlbumTrackNumber int32
+	ArtistID         uuid.UUID
+	AlbumID          uuid.UUID
 }
 
 type User struct {

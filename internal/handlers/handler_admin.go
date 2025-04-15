@@ -7,9 +7,12 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/VictorHRRios/catsnob/internal/api"
 	"github.com/VictorHRRios/catsnob/internal/database"
+	"github.com/google/uuid"
 )
 
 func (cfg *ApiConfig) HandlerFormArtistDisc(w http.ResponseWriter, r *http.Request) {
@@ -40,9 +43,12 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 		validArtistBio = true
 	}
 
-	_, err = cfg.Queries.CreateArtist(context.Background(), database.CreateArtistParams{
+	nameSlug := strings.ReplaceAll(strings.ToLower(artist.StrArtist), " ", "_")
+
+	artistDB, err := cfg.Queries.CreateArtist(context.Background(), database.CreateArtistParams{
 		FormedAt:  artist.IntFormedYear,
 		Name:      artist.StrArtist,
+		NameSlug:  nameSlug,
 		Biography: sql.NullString{String: *artist.StrBiographyEN, Valid: validArtistBio},
 		Genre:     artist.StrGenre,
 		ImgUrl:    artist.StrArtistThumb,
@@ -51,5 +57,63 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 		log.Print(err)
 		http.Error(w, "Error creating artist", http.StatusInternalServerError)
 	}
+
+	cfg.handlerCreateArtistAlbums(name, artistDB.ID)
 	http.Redirect(w, r, "/admin/createArtistDisc", http.StatusFound)
+}
+
+func (cfg *ApiConfig) handlerCreateArtistAlbums(artistId string, artistDBId uuid.UUID) (database.Artist, error) {
+	retrAlbums, err := api.GetAlbums(&artistId)
+	if err != nil {
+		return database.Artist{}, err
+	}
+	for _, album := range retrAlbums.Album {
+		nameSlug := strings.ReplaceAll(strings.ToLower(album.StrAlbum), " ", "_")
+		albumDB, err := cfg.Queries.CreateAlbum(context.Background(), database.CreateAlbumParams{
+			Name:     album.StrAlbum,
+			NameSlug: nameSlug,
+			Genre:    album.StrGenre,
+			ImgUrl:   album.StrAlbumThumb,
+			ArtistID: artistDBId,
+		})
+		if err != nil {
+			return database.Artist{}, err
+		}
+		cfg.handlerCreateAlbumTracks(album.IDAlbum, albumDB.ID, artistDBId)
+	}
+
+	return database.Artist{}, nil
+
+}
+
+func (cfg *ApiConfig) handlerCreateAlbumTracks(albumId string, albumDBId uuid.UUID, artistDBId uuid.UUID) (database.Track, error) {
+	retrAlbumTracks, err := api.GetAlbumSongs(&albumId)
+	if err != nil {
+		return database.Track{}, err
+	}
+	for _, track := range retrAlbumTracks.Track {
+		nameSlug := strings.ReplaceAll(strings.ToLower(track.StrTrack), " ", "_")
+		trackDuration, err := strconv.Atoi(track.IntDuration)
+		if err != nil {
+			return database.Track{}, err
+		}
+		trackNumber, err := strconv.Atoi(track.IntTrackNumber)
+		if err != nil {
+			return database.Track{}, err
+		}
+		_, err = cfg.Queries.CreateAlbumTracks(context.Background(), database.CreateAlbumTracksParams{
+			Name:             track.StrTrack,
+			NameSlug:         nameSlug,
+			Duration:         int32(trackDuration),
+			AlbumTrackNumber: int32(trackNumber),
+			ArtistID:         artistDBId,
+			AlbumID:          albumDBId,
+		})
+		if err != nil {
+			return database.Track{}, err
+		}
+	}
+
+	return database.Track{}, nil
+
 }
