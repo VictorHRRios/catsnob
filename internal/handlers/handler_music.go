@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"html/template"
 	"net/http"
 	"path/filepath"
@@ -19,7 +18,6 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 	}
 
 	artistAlbums, err := cfg.Queries.GetArtistAlbums(context.Background(), artistName)
-	fmt.Printf("artistAlbums: %v\n", artistAlbums)
 	if err != nil {
 		http.Error(w, "Error fetching artist albums", http.StatusInternalServerError)
 		return

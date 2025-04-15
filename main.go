@@ -43,6 +43,8 @@ func main() {
 	})
 
 	mux.HandleFunc("GET /app/home", apiCfg.HandlerIndex)
+	mux.HandleFunc("GET /app/home/albums", apiCfg.HandlerAlbums)
+	mux.HandleFunc("GET /app/home/tracks", apiCfg.HandlerTracks)
 	mux.HandleFunc("GET /app/join", apiCfg.HandlerJoin)
 	mux.HandleFunc("GET /app/user/{username}", apiCfg.HandlerUserProfile)
 	mux.HandleFunc("GET /admin/createArtistDisc", apiCfg.HandlerFormArtistDisc)

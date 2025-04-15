@@ -108,3 +108,51 @@ func (q *Queries) GetAlbumTracks(ctx context.Context, nameSlug string) ([]GetAlb
 	}
 	return items, nil
 }
+
+const getTop12Tracks = `-- name: GetTop12Tracks :many
+select distinct on (albums.name)
+	tracks.name, tracks.name_slug, tracks.duration, albums.name as album_name, albums.name_slug as album_name_slug, albums.img_url as img_url
+from tracks
+join albums
+on tracks.album_id = albums.id
+limit 12
+`
+
+type GetTop12TracksRow struct {
+	Name          string
+	NameSlug      string
+	Duration      int32
+	AlbumName     string
+	AlbumNameSlug string
+	ImgUrl        string
+}
+
+func (q *Queries) GetTop12Tracks(ctx context.Context) ([]GetTop12TracksRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTop12Tracks)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetTop12TracksRow
+	for rows.Next() {
+		var i GetTop12TracksRow
+		if err := rows.Scan(
+			&i.Name,
+			&i.NameSlug,
+			&i.Duration,
+			&i.AlbumName,
+			&i.AlbumNameSlug,
+			&i.ImgUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

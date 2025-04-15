@@ -13,9 +13,17 @@ values (
 returning *;
 
 -- name: GetArtistAlbums :many
-select albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug artist_name_slug
+select albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug as artist_name_slug
 from albums
 join artists
 on albums.artist_id = artists.id
 where artists.name_slug = $1;
+
+-- name: GetTop12Albums :many
+select 
+	albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug as artist_name_slug 
+from albums
+join artists
+on albums.artist_id = artists.id
+limit 12;
 

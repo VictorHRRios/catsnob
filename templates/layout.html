@@ -6,14 +6,14 @@
 	{{ if .Stylesheet }}
 	<link rel="stylesheet" href="{{ .Stylesheet }}">
 	{{ else }}
-	<link rel="stylesheet" href="/app/assets/styles.css">
+	<link rel="stylesheet" href="/app/assets/css/styles.css">
 	{{ end }}
 	<title>{{ block "title" . }}CATSNOB{{ end }}</title>
 </head>
 <body>
 	<header>
 		<nav>
-			<a href="" class="nav">LOGO</a>
+			<a href="/app/home" class="nav">LOGO</a>
 			<a href="" class="nav">CATSNOB</a>
 			<a href="" class="nav profile-button">Profile</a>
 		</nav>

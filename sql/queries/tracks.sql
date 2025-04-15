@@ -19,3 +19,12 @@ from tracks
 join albums
 on tracks.album_id = albums.id
 where albums.name_slug = $1;
+
+
+-- name: GetTop12Tracks :many
+select distinct on (albums.name)
+	tracks.name, tracks.name_slug, tracks.duration, albums.name as album_name, albums.name_slug as album_name_slug, albums.img_url as img_url
+from tracks
+join albums
+on tracks.album_id = albums.id
+limit 12;

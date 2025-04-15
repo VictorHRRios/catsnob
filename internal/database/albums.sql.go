@@ -57,7 +57,7 @@ func (q *Queries) CreateAlbum(ctx context.Context, arg CreateAlbumParams) (Album
 }
 
 const getArtistAlbums = `-- name: GetArtistAlbums :many
-select albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug artist_name_slug
+select albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug as artist_name_slug
 from albums
 join artists
 on albums.artist_id = artists.id
@@ -82,6 +82,54 @@ func (q *Queries) GetArtistAlbums(ctx context.Context, nameSlug string) ([]GetAr
 	var items []GetArtistAlbumsRow
 	for rows.Next() {
 		var i GetArtistAlbumsRow
+		if err := rows.Scan(
+			&i.Name,
+			&i.NameSlug,
+			&i.Genre,
+			&i.ImgUrl,
+			&i.ArtistName,
+			&i.ArtistNameSlug,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTop12Albums = `-- name: GetTop12Albums :many
+select 
+	albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug as artist_name_slug 
+from albums
+join artists
+on albums.artist_id = artists.id
+limit 12
+`
+
+type GetTop12AlbumsRow struct {
+	Name           string
+	NameSlug       string
+	Genre          string
+	ImgUrl         string
+	ArtistName     string
+	ArtistNameSlug string
+}
+
+func (q *Queries) GetTop12Albums(ctx context.Context) ([]GetTop12AlbumsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTop12Albums)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetTop12AlbumsRow
+	for rows.Next() {
+		var i GetTop12AlbumsRow
 		if err := rows.Scan(
 			&i.Name,
 			&i.NameSlug,

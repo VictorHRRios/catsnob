@@ -1,12 +1,12 @@
-{{ define "title" }}Home Page{{ end }}
+{{ define "title" }}Home Page | Albums{{ end }}
 
 {{ define "content" }}
 	<div id="content">
 		<div class="header">
-			<a href="/app/home" class="selected">
+			<a href="/app/home">
 			Artists
 			</a>
-			<a href="/app/home/albums">
+			<a href="/app/home/albums" class="selected">
 			Albums
 			</a>
 			<a href="/app/home/tracks">
@@ -17,10 +17,10 @@
 			</a>
 		</div>
 		<div class="table">
-			{{ range .Artists}}
+			{{ range .Albums}}
 				<div class="table-elem">
 					<img src="{{.ImgUrl }}">
-					<a class="name" href="/app/music/{{ .NameSlug }}"> {{ .Name }}</a>
+			<a class="name" href="/app/music/{{.ArtistNameSlug}}/{{ .NameSlug }}"> {{ .Name }}</a>
 				</div>
 			{{end}}
 		</div>
