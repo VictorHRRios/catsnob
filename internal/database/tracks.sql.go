@@ -59,3 +59,52 @@ func (q *Queries) CreateAlbumTracks(ctx context.Context, arg CreateAlbumTracksPa
 	)
 	return i, err
 }
+
+const getAlbumTracks = `-- name: GetAlbumTracks :many
+select tracks.name, tracks.name_slug, tracks.duration, tracks.album_track_number, albums.name as album_name, albums.name_slug as album_name_slug, albums.img_url as img_url
+from tracks
+join albums
+on tracks.album_id = albums.id
+where albums.name_slug = $1
+`
+
+type GetAlbumTracksRow struct {
+	Name             string
+	NameSlug         string
+	Duration         int32
+	AlbumTrackNumber int32
+	AlbumName        string
+	AlbumNameSlug    string
+	ImgUrl           string
+}
+
+func (q *Queries) GetAlbumTracks(ctx context.Context, nameSlug string) ([]GetAlbumTracksRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAlbumTracks, nameSlug)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAlbumTracksRow
+	for rows.Next() {
+		var i GetAlbumTracksRow
+		if err := rows.Scan(
+			&i.Name,
+			&i.NameSlug,
+			&i.Duration,
+			&i.AlbumTrackNumber,
+			&i.AlbumName,
+			&i.AlbumNameSlug,
+			&i.ImgUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

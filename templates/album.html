@@ -1,0 +1,14 @@
+{{ define "title" }}Album {{ end }}
+
+{{ define "content" }}
+<h1>{{(index .Tracks 0).AlbumName}}</h1>
+<img src="{{(index .Tracks 0).ImgUrl}}"></img>
+
+{{ range .Tracks}}
+	<div class="table-elem">
+	<a href="./{{.AlbumNameSlug}}/{{ .NameSlug}}"> {{.AlbumTrackNumber}}. {{.Name}} </a>
+	
+	</div>
+{{end}}
+
+{{ end }}

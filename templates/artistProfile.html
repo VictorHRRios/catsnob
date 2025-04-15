@@ -8,4 +8,12 @@
 <h2>{{ .Genre }}</h2>
 <p>{{ .Biography }}</p>
 
+
+{{ range .Albums}}
+	<div class="table-elem">
+	<a href="./{{.ArtistNameSlug}}/{{ .NameSlug}}"> <img src="{{.ImgUrl }}"> {{.Name}} </a>
+	
+	</div>
+{{end}}
+
 {{ end }}

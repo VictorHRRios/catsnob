@@ -17,14 +17,12 @@
 			</a>
 		</div>
 		<div class="table">
-			{{ if .Artists }}
 			{{ range .Artists}}
 				<div class="table-elem">
 					<img src="{{.ImgUrl }}">
-					<a class="name" href="/app/music/{{ .Name }}"> {{ .Name }}</a>
+					<a class="name" href="/app/music/{{ .NameSlug }}"> {{ .Name }}</a>
 				</div>
 			{{end}}
-			{{ end }}
 		</div>
 	</div>
 {{ end }}

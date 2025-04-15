@@ -57,22 +57,24 @@ func (q *Queries) CreateAlbum(ctx context.Context, arg CreateAlbumParams) (Album
 }
 
 const getArtistAlbums = `-- name: GetArtistAlbums :many
-select albums.name, albums.genre, albums.img_url, artists.name
+select albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug artist_name_slug
 from albums
 join artists
-on albums.id = artists.id
-where artists.name = $1
+on albums.artist_id = artists.id
+where artists.name_slug = $1
 `
 
 type GetArtistAlbumsRow struct {
-	Name   string
-	Genre  string
-	ImgUrl string
-	Name_2 string
+	Name           string
+	NameSlug       string
+	Genre          string
+	ImgUrl         string
+	ArtistName     string
+	ArtistNameSlug string
 }
 
-func (q *Queries) GetArtistAlbums(ctx context.Context, name string) ([]GetArtistAlbumsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getArtistAlbums, name)
+func (q *Queries) GetArtistAlbums(ctx context.Context, nameSlug string) ([]GetArtistAlbumsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getArtistAlbums, nameSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -82,9 +84,11 @@ func (q *Queries) GetArtistAlbums(ctx context.Context, name string) ([]GetArtist
 		var i GetArtistAlbumsRow
 		if err := rows.Scan(
 			&i.Name,
+			&i.NameSlug,
 			&i.Genre,
 			&i.ImgUrl,
-			&i.Name_2,
+			&i.ArtistName,
+			&i.ArtistNameSlug,
 		); err != nil {
 			return nil, err
 		}

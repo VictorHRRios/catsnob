@@ -13,3 +13,9 @@ values (
 )
 returning *;
 
+-- name: GetAlbumTracks :many
+select tracks.name, tracks.name_slug, tracks.duration, tracks.album_track_number, albums.name as album_name, albums.name_slug as album_name_slug, albums.img_url as img_url
+from tracks
+join albums
+on tracks.album_id = albums.id
+where albums.name_slug = $1;

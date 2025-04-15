@@ -13,8 +13,9 @@ values (
 returning *;
 
 -- name: GetArtistAlbums :many
-select albums.name, albums.genre, albums.img_url, artists.name
+select albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug artist_name_slug
 from albums
 join artists
-on albums.id = artists.id
-where artists.name = $1;
+on albums.artist_id = artists.id
+where artists.name_slug = $1;
+

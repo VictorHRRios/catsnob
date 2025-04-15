@@ -45,9 +45,9 @@ func main() {
 	mux.HandleFunc("GET /app/home", apiCfg.HandlerIndex)
 	mux.HandleFunc("GET /app/join", apiCfg.HandlerJoin)
 	mux.HandleFunc("GET /app/user/{username}", apiCfg.HandlerUserProfile)
-	//mux.HandleFunc("GET /app/artist/{artistId}", apiCfg.HandlerArtistDesc)
 	mux.HandleFunc("GET /admin/createArtistDisc", apiCfg.HandlerFormArtistDisc)
 	mux.HandleFunc("GET /app/music/{artist}", apiCfg.HandlerArtistProfile)
+	mux.HandleFunc("GET /app/music/{artist}/{album}", apiCfg.HandlerAlbum)
 
 	mux.HandleFunc("POST /app/join", apiCfg.HandlerCreateUser)
 	mux.HandleFunc("POST /admin/createArtistDisc", apiCfg.HandlerCreateArtistDisc)
