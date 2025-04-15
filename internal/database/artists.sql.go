@@ -111,3 +111,39 @@ func (q *Queries) GetArtists(ctx context.Context) ([]Artist, error) {
 	}
 	return items, nil
 }
+
+const getTop12Artists = `-- name: GetTop12Artists :many
+select id, created_at, updated_at, formed_at, name, biography, genre, img_url from artists limit 12
+`
+
+func (q *Queries) GetTop12Artists(ctx context.Context) ([]Artist, error) {
+	rows, err := q.db.QueryContext(ctx, getTop12Artists)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Artist
+	for rows.Next() {
+		var i Artist
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.FormedAt,
+			&i.Name,
+			&i.Biography,
+			&i.Genre,
+			&i.ImgUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

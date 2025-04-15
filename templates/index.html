@@ -4,9 +4,6 @@
 	<div id="content">
 		<div class="header">
 			<a href="/app/home" class="selected">
-			Users
-			</a>
-			<a href="/app/artists">
 			Artists
 			</a>
 			<a href="/app/albums">
@@ -15,10 +12,18 @@
 			<a href="/app/tracks">
 			Tracks
 			</a>
+			<a href="/app/followed">
+			Users
+			</a>
 		</div>
-		<div>
+		<div class="table">
 			{{ if .Artists }}
-			{{ range .Artists}}<img src="{{.imgurl}}">{{end}}
+			{{ range .Artists}}
+				<div class="table-elem">
+					<img src="{{.ImgUrl }}">
+					<a class="name" href="/app/artist/{{ .ID }}"> {{ .Name }}</a>
+				</div>
+			{{end}}
 			{{ end }}
 		</div>
 	</div>

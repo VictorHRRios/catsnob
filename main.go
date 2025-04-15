@@ -41,9 +41,6 @@ func main() {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/app/home", http.StatusSeeOther)
 	})
-	mux.HandleFunc("/app", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/app/home", http.StatusSeeOther)
-	})
 
 	mux.HandleFunc("GET /app/home", apiCfg.HandlerIndex)
 	mux.HandleFunc("GET /app/join", apiCfg.HandlerJoin)

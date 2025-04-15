@@ -40,7 +40,6 @@ a {
 
 }
 
-
 div.header {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -54,4 +53,14 @@ a.selected {
 
 #content {
     margin: 0 20vh;
+}
+
+div.table {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.table img {
+  width: 100%;
 }

@@ -18,3 +18,6 @@ where name = $1;
 
 -- name: GetArtists :many
 select * from artists;
+
+-- name: GetTop12Artists :many
+select * from artists limit 12;
