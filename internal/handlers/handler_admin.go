@@ -16,7 +16,7 @@ import (
 )
 
 func (cfg *ApiConfig) HandlerFormArtistDisc(w http.ResponseWriter, r *http.Request) {
-	tmplPath := filepath.Join("templates", "registerArtist.html")
+	tmplPath := filepath.Join("templates", "admin", "registerArtist.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)

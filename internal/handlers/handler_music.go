@@ -23,7 +23,7 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	tmplPath := filepath.Join("templates", "artistProfile.html")
+	tmplPath := filepath.Join("templates", "music", "artist.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
@@ -59,7 +59,7 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmplPath := filepath.Join("templates", "album.html")
+	tmplPath := filepath.Join("templates", "music", "album.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)

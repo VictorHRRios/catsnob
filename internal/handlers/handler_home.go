@@ -12,7 +12,7 @@ import (
 const layout = "templates/layout.html"
 
 func (cfg *ApiConfig) HandlerIndex(w http.ResponseWriter, r *http.Request) {
-	tmplPath := filepath.Join("templates", "index.html")
+	tmplPath := filepath.Join("templates", "home", "artists.html")
 
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
@@ -36,7 +36,7 @@ func (cfg *ApiConfig) HandlerIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *ApiConfig) HandlerAlbums(w http.ResponseWriter, r *http.Request) {
-	tmplPath := filepath.Join("templates", "albums.html")
+	tmplPath := filepath.Join("templates", "home", "albums.html")
 
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
@@ -60,7 +60,7 @@ func (cfg *ApiConfig) HandlerAlbums(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *ApiConfig) HandlerTracks(w http.ResponseWriter, r *http.Request) {
-	tmplPath := filepath.Join("templates", "tracks.html")
+	tmplPath := filepath.Join("templates", "home", "tracks.html")
 
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
