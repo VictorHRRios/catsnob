@@ -15,15 +15,35 @@ import (
 	"github.com/google/uuid"
 )
 
-func (cfg *ApiConfig) HandlerFormArtistDisc(w http.ResponseWriter, r *http.Request) {
+func (cfg *ApiConfig) HandlerFormArtistDisc(w http.ResponseWriter, r *http.Request, u *database.User) {
 	tmplPath := filepath.Join("templates", "admin", "registerArtist.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
 	}
 
-	if err := tmpl.Execute(w, nil); err != nil {
+	if u == nil {
+		http.Error(w, "Access denied, no user logged in!", http.StatusForbidden)
+		return
+	}
+
+	if !u.IsAdmin {
+		http.Error(w, "Access denied for user", http.StatusForbidden)
+		return
+	}
+
+	data := struct {
+		Stylesheet *string
+		User       *database.User
+	}{
+		Stylesheet: nil,
+		User:       u,
+	}
+
+	if err := tmpl.Execute(w, data); err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
 	}
 }
 

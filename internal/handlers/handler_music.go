@@ -9,7 +9,7 @@ import (
 	"github.com/VictorHRRios/catsnob/internal/database"
 )
 
-func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Request) {
+func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Request, u *database.User) {
 	artistName := r.PathValue("artist")
 	artist, err := cfg.Queries.GetArtist(context.Background(), artistName)
 	if err != nil {
@@ -30,20 +30,14 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 	}
 	data := struct {
 		Stylesheet *string
-		Name       string
-		Img        string
-		Biography  string
-		FormedAt   string
-		Genre      string
+		Artist     database.Artist
 		Albums     []database.GetArtistAlbumsRow
+		User       *database.User
 	}{
 		Stylesheet: nil,
-		Name:       artist.Name,
-		Img:        artist.ImgUrl,
-		Biography:  artist.Biography.String,
-		FormedAt:   artist.FormedAt,
-		Genre:      artist.Genre,
+		Artist:     artist,
 		Albums:     artistAlbums,
+		User:       u,
 	}
 
 	if err := tmpl.Execute(w, data); err != nil {
@@ -51,7 +45,7 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request) {
+func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *database.User) {
 	albumName := r.PathValue("album")
 	album, err := cfg.Queries.GetAlbumTracks(context.Background(), albumName)
 	if err != nil {
@@ -67,9 +61,11 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Stylesheet *string
 		Tracks     []database.GetAlbumTracksRow
+		User       *database.User
 	}{
 		Stylesheet: nil,
 		Tracks:     album,
+		User:       u,
 	}
 
 	if err := tmpl.Execute(w, data); err != nil {

@@ -1,7 +1,7 @@
 {{ define "title" }}Join{{ end }}
 
 {{ define "content" }}
-<form method="post" action="/app/join">
+<form method="post" action="/app/login">
 	<div>
 		<label for="name">username</label>
 	</div>
@@ -10,6 +10,6 @@
 		<label for="password">password</label>
 	</div>
 	<input id="password" type="password" name="password" placeholder="Enter your password">
-	<button id="submit" type="submit">Join!</button>
+	<button id="submit" type="submit">Log In!</button>
 </form>
 {{ end }}

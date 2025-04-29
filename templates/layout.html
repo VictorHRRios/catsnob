@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,12 +11,19 @@
 	{{ end }}
 	<title>{{ block "title" . }}CATSNOB{{ end }}</title>
 </head>
+
 <body>
 	<header>
 		<nav>
 			<a href="/app/home" class="nav">LOGO</a>
 			<a href="" class="nav">CATSNOB</a>
-			<a href="" class="nav profile-button">Profile</a>
+			{{ if .User }}
+			<a href="" class="nav"> {{ .User.Name }}</a>
+			<a href="" class="nav"> Log out!</a>
+			{{ else }}
+			<a href="/app/login" class="nav"> Log in!</a>
+			<a href="/app/join" class="nav"> Join!</a>
+			{{ end }}
 		</nav>
 	</header>
 
@@ -24,4 +32,5 @@
 	</main>
 	<footer>Page made by: </footer>
 </body>
+
 </html>

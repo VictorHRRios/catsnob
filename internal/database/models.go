@@ -55,9 +55,11 @@ type Track struct {
 }
 
 type User struct {
-	ID        uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Name      string
-	ImgUrl    string
+	ID             uuid.UUID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	Name           string
+	ImgUrl         string
+	HashedPassword string
+	IsAdmin        bool
 }

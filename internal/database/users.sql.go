@@ -7,27 +7,32 @@ package database
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :one
-insert into users (id, created_at, updated_at, name, img_url)
+insert into users (id, created_at, updated_at, name, img_url, hashed_password, is_admin)
 values (
 	gen_random_uuid(),
 	NOW(),
 	NOW(),
 	$1,
-	$2
+	$2,
+	$3,
+	false
 )
-returning id, created_at, updated_at, name, img_url
+returning id, created_at, updated_at, name, img_url, hashed_password, is_admin
 `
 
 type CreateUserParams struct {
-	Name   string
-	ImgUrl string
+	Name           string
+	ImgUrl         string
+	HashedPassword string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Name, arg.ImgUrl)
+	row := q.db.QueryRowContext(ctx, createUser, arg.Name, arg.ImgUrl, arg.HashedPassword)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -35,12 +40,14 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.Name,
 		&i.ImgUrl,
+		&i.HashedPassword,
+		&i.IsAdmin,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-select id, created_at, updated_at, name, img_url from users
+select id, created_at, updated_at, name, img_url, hashed_password, is_admin from users
 where name = $1
 `
 
@@ -53,12 +60,34 @@ func (q *Queries) GetUser(ctx context.Context, name string) (User, error) {
 		&i.UpdatedAt,
 		&i.Name,
 		&i.ImgUrl,
+		&i.HashedPassword,
+		&i.IsAdmin,
+	)
+	return i, err
+}
+
+const getUserFromID = `-- name: GetUserFromID :one
+select id, created_at, updated_at, name, img_url, hashed_password, is_admin from users
+where id = $1
+`
+
+func (q *Queries) GetUserFromID(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserFromID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.ImgUrl,
+		&i.HashedPassword,
+		&i.IsAdmin,
 	)
 	return i, err
 }
 
 const getUsers = `-- name: GetUsers :many
-select id, created_at, updated_at, name, img_url from users
+select id, created_at, updated_at, name, img_url, hashed_password, is_admin from users
 `
 
 func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
@@ -76,6 +105,8 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 			&i.UpdatedAt,
 			&i.Name,
 			&i.ImgUrl,
+			&i.HashedPassword,
+			&i.IsAdmin,
 		); err != nil {
 			return nil, err
 		}
