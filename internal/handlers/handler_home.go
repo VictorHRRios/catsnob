@@ -17,11 +17,13 @@ func (cfg *ApiConfig) HandlerIndex(w http.ResponseWriter, r *http.Request, u *da
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
 	}
 
 	artists, err := cfg.Queries.GetTop12Artists(context.Background())
 	if err != nil {
 		http.Error(w, "Error fetching artists", http.StatusInternalServerError)
+		return
 	}
 
 	data := struct {
@@ -34,8 +36,10 @@ func (cfg *ApiConfig) HandlerIndex(w http.ResponseWriter, r *http.Request, u *da
 		User:       u,
 	}
 
-	if err := tmpl.Execute(w, data); err != nil {
+	err = tmpl.Execute(w, data)
+	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
 	}
 
 }
@@ -46,6 +50,7 @@ func (cfg *ApiConfig) HandlerAlbums(w http.ResponseWriter, r *http.Request, u *d
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
 	}
 
 	albums, err := cfg.Queries.GetTop12Albums(context.Background())
@@ -60,8 +65,10 @@ func (cfg *ApiConfig) HandlerAlbums(w http.ResponseWriter, r *http.Request, u *d
 		User:       u,
 	}
 
-	if err := tmpl.Execute(w, data); err != nil {
+	err = tmpl.Execute(w, data)
+	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
 	}
 
 }
@@ -72,6 +79,7 @@ func (cfg *ApiConfig) HandlerTracks(w http.ResponseWriter, r *http.Request, u *d
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
 	}
 
 	tracks, err := cfg.Queries.GetTop12Tracks(context.Background())
@@ -84,8 +92,10 @@ func (cfg *ApiConfig) HandlerTracks(w http.ResponseWriter, r *http.Request, u *d
 		Tracks:     tracks,
 		User:       u,
 	}
-	if err := tmpl.Execute(w, data); err != nil {
+	err = tmpl.Execute(w, data)
+	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
 	}
 
 }

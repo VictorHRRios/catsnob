@@ -12,6 +12,9 @@ values (
 )
 returning *;
 
+-- name: GetAlbum :one
+select * from albums where name_slug = $1;
+
 -- name: GetArtistAlbums :many
 select albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug as artist_name_slug
 from albums

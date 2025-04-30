@@ -28,6 +28,7 @@ func (cfg ApiConfig) AuthMiddleware(next func(w http.ResponseWriter, r *http.Req
 		user, err := cfg.Queries.GetUserFromID(context.Background(), userID)
 		if err != nil {
 			next(w, r, nil)
+			return
 		}
 		next(w, r, &user)
 	})

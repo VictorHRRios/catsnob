@@ -56,6 +56,26 @@ func (q *Queries) CreateAlbum(ctx context.Context, arg CreateAlbumParams) (Album
 	return i, err
 }
 
+const getAlbum = `-- name: GetAlbum :one
+select id, created_at, updated_at, name, name_slug, genre, img_url, artist_id from albums where name_slug = $1
+`
+
+func (q *Queries) GetAlbum(ctx context.Context, nameSlug string) (Album, error) {
+	row := q.db.QueryRowContext(ctx, getAlbum, nameSlug)
+	var i Album
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.NameSlug,
+		&i.Genre,
+		&i.ImgUrl,
+		&i.ArtistID,
+	)
+	return i, err
+}
+
 const getArtistAlbums = `-- name: GetArtistAlbums :many
 select albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug as artist_name_slug
 from albums

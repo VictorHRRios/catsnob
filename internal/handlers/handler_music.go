@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"html/template"
+	"log"
 	"net/http"
 	"path/filepath"
 
@@ -14,6 +15,7 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 	artist, err := cfg.Queries.GetArtist(context.Background(), artistName)
 	if err != nil {
 		http.Error(w, "Error fetching artist", http.StatusInternalServerError)
+		log.Print(err)
 		return
 	}
 
@@ -27,6 +29,7 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
 	}
 	data := struct {
 		Stylesheet *string
@@ -40,16 +43,26 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 		User:       u,
 	}
 
-	if err := tmpl.Execute(w, data); err != nil {
+	err = tmpl.Execute(w, data)
+	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
 	}
 }
 
 func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *database.User) {
 	albumName := r.PathValue("album")
-	album, err := cfg.Queries.GetAlbumTracks(context.Background(), albumName)
+
+	_, err := cfg.Queries.GetAlbum(context.Background(), albumName)
 	if err != nil {
-		http.Error(w, "Error fetching artist", http.StatusInternalServerError)
+		http.Error(w, "Error fetching albums", http.StatusInternalServerError)
+		log.Print(err)
+		return
+	}
+
+	tracks, err := cfg.Queries.GetAlbumTracks(context.Background(), albumName)
+	if err != nil {
+		http.Error(w, "Error fetching tracks", http.StatusInternalServerError)
 		return
 	}
 
@@ -57,6 +70,7 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
 	}
 	data := struct {
 		Stylesheet *string
@@ -64,11 +78,14 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 		User       *database.User
 	}{
 		Stylesheet: nil,
-		Tracks:     album,
+		Tracks:     tracks,
 		User:       u,
 	}
 
-	if err := tmpl.Execute(w, data); err != nil {
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Print(err)
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
 	}
 }

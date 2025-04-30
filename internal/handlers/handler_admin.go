@@ -41,7 +41,8 @@ func (cfg *ApiConfig) HandlerFormArtistDisc(w http.ResponseWriter, r *http.Reque
 		User:       u,
 	}
 
-	if err := tmpl.Execute(w, data); err != nil {
+	err = tmpl.Execute(w, data)
+	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
@@ -54,6 +55,7 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 	retrArtist, err := api.GetArtist(&name)
 	if err != nil {
 		http.Error(w, "Error searching for artist in api", http.StatusInternalServerError)
+		return
 	}
 	artist := retrArtist.Artists[0]
 
@@ -76,6 +78,7 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		log.Print(err)
 		http.Error(w, "Error creating artist", http.StatusInternalServerError)
+		return
 	}
 
 	cfg.handlerCreateArtistAlbums(name, artistDB.ID)

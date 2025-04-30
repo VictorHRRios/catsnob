@@ -20,7 +20,8 @@ func (cfg *ApiConfig) HandlerJoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := tmpl.Execute(w, nil); err != nil {
+	err = tmpl.Execute(w, nil)
+	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
@@ -34,7 +35,8 @@ func (cfg *ApiConfig) HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := tmpl.Execute(w, nil); err != nil {
+	err = tmpl.Execute(w, nil)
+	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
@@ -109,6 +111,7 @@ func (cfg *ApiConfig) HandlerUserProfile(w http.ResponseWriter, r *http.Request,
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
 	}
 
 	data := struct {
@@ -123,8 +126,9 @@ func (cfg *ApiConfig) HandlerUserProfile(w http.ResponseWriter, r *http.Request,
 		User:       u,
 	}
 
-	if err := tmpl.Execute(w, data); err != nil {
-		log.Print(err)
+	err = tmpl.Execute(w, data)
+	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
 	}
 }
