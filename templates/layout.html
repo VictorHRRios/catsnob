@@ -16,9 +16,9 @@
 	<header>
 		<nav>
 			<a href="/app/home" class="nav">LOGO</a>
-			<a href="" class="nav">CATSNOB</a>
+			<a href="/app/home" class="nav">CATSNOB</a>
 			{{ if .User }}
-			<a href="" class="nav"> {{ .User.Name }}</a>
+			<a href="/app/user/{{.User.Name}}" class="nav"> {{ .User.Name }}</a>
 			<a href="" class="nav"> Log out!</a>
 			{{ else }}
 			<a href="/app/login" class="nav"> Log in!</a>

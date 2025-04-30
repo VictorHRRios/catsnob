@@ -2,18 +2,18 @@
 
 {{ define "content" }}
 
-<h1>{{ .Name }}</h1>
-<img src="{{ .Img }}">
-<h2>{{ .FormedAt }}</h2>
-<h2>{{ .Genre }}</h2>
-<p>{{ .Biography }}</p>
+<h1>{{ .Artist.Name }}</h1>
+<img src="{{ .Artist.ImgUrl }}">
+<h2>{{ .Artist.FormedAt }}</h2>
+<h2>{{ .Artist.Genre }}</h2>
+<p>{{ .Artist.Biography }}</p>
 
 
 {{ range .Albums}}
-	<div class="table-elem">
+<div class="table-elem">
 	<a href="./{{.ArtistNameSlug}}/{{ .NameSlug}}"> <img src="{{.ImgUrl }}"> {{.Name}} </a>
-	
-	</div>
+
+</div>
 {{end}}
 
 {{ end }}
