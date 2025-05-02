@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"html/template"
-	"log"
 	"net/http"
 	"path/filepath"
 
@@ -15,7 +14,6 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 	artist, err := cfg.Queries.GetArtist(context.Background(), artistName)
 	if err != nil {
 		http.Error(w, "Error fetching artist", http.StatusInternalServerError)
-		log.Print(err)
 		return
 	}
 
@@ -56,7 +54,6 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 	_, err := cfg.Queries.GetAlbum(context.Background(), albumName)
 	if err != nil {
 		http.Error(w, "Error fetching albums", http.StatusInternalServerError)
-		log.Print(err)
 		return
 	}
 
@@ -84,7 +81,38 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 
 	err = tmpl.Execute(w, data)
 	if err != nil {
-		log.Print(err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (cfg *ApiConfig) HandlerTrack(w http.ResponseWriter, r *http.Request, u *database.User) {
+	trackName := r.PathValue("track")
+
+	track, err := cfg.Queries.GetTrack(context.Background(), trackName)
+	if err != nil {
+		http.Error(w, "Error fetching track", http.StatusInternalServerError)
+		return
+	}
+
+	tmplPath := filepath.Join("templates", "music", "track.html")
+	tmpl, err := template.ParseFiles(layout, tmplPath)
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+	data := struct {
+		Stylesheet *string
+		Track      database.GetTrackRow
+		User       *database.User
+	}{
+		Stylesheet: nil,
+		Track:      track,
+		User:       u,
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}

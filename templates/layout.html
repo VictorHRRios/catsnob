@@ -19,7 +19,9 @@
 			<a href="/app/home" class="nav">CATSNOB</a>
 			{{ if .User }}
 			<a href="/app/user/{{.User.Name}}" class="nav"> {{ .User.Name }}</a>
-			<a href="" class="nav"> Log out!</a>
+			<form action="/app/logout" method="POST" style="display: inline;">
+				<button type="submit">Logout</button>
+			</form>
 			{{ else }}
 			<a href="/app/login" class="nav"> Log in!</a>
 			<a href="/app/join" class="nav"> Join!</a>

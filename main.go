@@ -52,11 +52,13 @@ func main() {
 	mux.HandleFunc("GET /app/user/{username}", apiCfg.AuthMiddleware(apiCfg.HandlerUserProfile))
 	mux.HandleFunc("GET /app/music/{artist}", apiCfg.AuthMiddleware(apiCfg.HandlerArtistProfile))
 	mux.HandleFunc("GET /app/music/{artist}/{album}", apiCfg.AuthMiddleware(apiCfg.HandlerAlbum))
+	mux.HandleFunc("GET /app/music/{artist}/{album}/{track}", apiCfg.AuthMiddleware(apiCfg.HandlerTrack))
 
 	mux.HandleFunc("GET /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerFormArtistDisc))
 
 	mux.HandleFunc("POST /app/join", apiCfg.HandlerCreateUser)
 	mux.HandleFunc("POST /app/login", apiCfg.HandlerAuthUser)
+	mux.HandleFunc("POST /app/logout", apiCfg.HandlerLogout)
 	mux.HandleFunc("POST /admin/createArtistDisc", apiCfg.HandlerCreateArtistDisc)
 
 	srv := &http.Server{

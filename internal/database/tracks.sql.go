@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -111,20 +112,24 @@ func (q *Queries) GetAlbumTracks(ctx context.Context, nameSlug string) ([]GetAlb
 
 const getTop12Tracks = `-- name: GetTop12Tracks :many
 select distinct on (albums.name)
-	tracks.name, tracks.name_slug, tracks.duration, albums.name as album_name, albums.name_slug as album_name_slug, albums.img_url as img_url
+	tracks.name, tracks.name_slug, tracks.duration,
+	albums.name as album_name, albums.name_slug as album_name_slug, albums.img_url as img_url,
+	artists.name as artist_name, artists.name_slug as artist_name_slug
 from tracks
-join albums
-on tracks.album_id = albums.id
+join albums on albums.id = tracks.album_id
+join artists on artists.id = albums.artist_id
 limit 12
 `
 
 type GetTop12TracksRow struct {
-	Name          string
-	NameSlug      string
-	Duration      int32
-	AlbumName     string
-	AlbumNameSlug string
-	ImgUrl        string
+	Name           string
+	NameSlug       string
+	Duration       int32
+	AlbumName      string
+	AlbumNameSlug  string
+	ImgUrl         string
+	ArtistName     string
+	ArtistNameSlug string
 }
 
 func (q *Queries) GetTop12Tracks(ctx context.Context) ([]GetTop12TracksRow, error) {
@@ -143,6 +148,8 @@ func (q *Queries) GetTop12Tracks(ctx context.Context) ([]GetTop12TracksRow, erro
 			&i.AlbumName,
 			&i.AlbumNameSlug,
 			&i.ImgUrl,
+			&i.ArtistName,
+			&i.ArtistNameSlug,
 		); err != nil {
 			return nil, err
 		}
@@ -155,4 +162,48 @@ func (q *Queries) GetTop12Tracks(ctx context.Context) ([]GetTop12TracksRow, erro
 		return nil, err
 	}
 	return items, nil
+}
+
+const getTrack = `-- name: GetTrack :one
+select
+	tracks.id, tracks.created_at, tracks.updated_at, tracks.name, tracks.name_slug, tracks.duration, tracks.album_track_number, tracks.artist_id, tracks.album_id,
+	albums.name_slug as album_name,
+	artists.name_slug as artist_name
+from tracks
+join albums on albums.id = tracks.album_id
+join artists on artists.id = albums.artist_id
+where tracks.name_slug = $1
+`
+
+type GetTrackRow struct {
+	ID               uuid.UUID
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	Name             string
+	NameSlug         string
+	Duration         int32
+	AlbumTrackNumber int32
+	ArtistID         uuid.UUID
+	AlbumID          uuid.UUID
+	AlbumName        string
+	ArtistName       string
+}
+
+func (q *Queries) GetTrack(ctx context.Context, nameSlug string) (GetTrackRow, error) {
+	row := q.db.QueryRowContext(ctx, getTrack, nameSlug)
+	var i GetTrackRow
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.NameSlug,
+		&i.Duration,
+		&i.AlbumTrackNumber,
+		&i.ArtistID,
+		&i.AlbumID,
+		&i.AlbumName,
+		&i.ArtistName,
+	)
+	return i, err
 }

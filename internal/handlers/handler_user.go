@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"html/template"
-	"log"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -59,7 +58,6 @@ func (cfg *ApiConfig) HandlerAuthUser(w http.ResponseWriter, r *http.Request) {
 
 	token, err := auth.MakeJWT(user.ID, cfg.JWT, time.Hour)
 	if err != nil {
-		log.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -73,6 +71,22 @@ func (cfg *ApiConfig) HandlerAuthUser(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/",
 	})
+	http.Redirect(w, r, "/app/home", http.StatusFound)
+}
+
+func (cfg *ApiConfig) HandlerLogout(w http.ResponseWriter, r *http.Request) {
+	c := &http.Cookie{
+		Name:     "auth_token",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		Secure:   false,
+	}
+
+	http.SetCookie(w, c)
+
 	http.Redirect(w, r, "/app/home", http.StatusFound)
 }
 
@@ -90,7 +104,6 @@ func (cfg *ApiConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) 
 		HashedPassword: hashedPassword,
 	})
 	if err != nil {
-		log.Print(err)
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
@@ -102,7 +115,6 @@ func (cfg *ApiConfig) HandlerUserProfile(w http.ResponseWriter, r *http.Request,
 	userName := r.PathValue("username")
 	user, err := cfg.Queries.GetUser(context.Background(), userName)
 	if err != nil {
-		log.Print(err)
 		http.Error(w, "Error fetching user", http.StatusInternalServerError)
 		return
 	}
