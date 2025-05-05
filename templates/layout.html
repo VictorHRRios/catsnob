@@ -28,6 +28,12 @@
 			{{ end }}
 		</nav>
 	</header>
+	{{ if .Error }}
+	{{ .Error }}
+	{{ else }}
+
+	{{ end }}
+
 
 	<main>
 		{{ block "content" . }}{{ end }}
