@@ -3,8 +3,8 @@ package handlers
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -15,33 +15,63 @@ import (
 	"github.com/google/uuid"
 )
 
+func (cfg *ApiConfig) HandlerAdminIndex(w http.ResponseWriter, r *http.Request, u *database.User) {
+	type returnVals struct {
+		Error      string
+		Stylesheet *string
+		User       *database.User
+	}
+	tmplPath := filepath.Join("templates", "admin", "index.html")
+	tmpl, err := template.ParseFiles(layout, tmplPath)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		return
+	}
+	if u == nil || !u.IsAdmin {
+		w.WriteHeader(http.StatusForbidden)
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Access denied for user")})
+		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (cfg *ApiConfig) HandlerFormArtistDisc(w http.ResponseWriter, r *http.Request, u *database.User) {
+	type returnVals struct {
+		Error      string
+		Stylesheet *string
+		User       *database.User
+	}
 	tmplPath := filepath.Join("templates", "admin", "registerArtist.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
 	if u == nil {
-		http.Error(w, "Access denied, no user logged in!", http.StatusForbidden)
+		w.WriteHeader(http.StatusForbidden)
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Access denied, no user logged in")})
 		return
 	}
 
 	if !u.IsAdmin {
-		http.Error(w, "Access denied for user", http.StatusForbidden)
+		w.WriteHeader(http.StatusForbidden)
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Access denied for user")})
 		return
 	}
 
-	data := struct {
-		Stylesheet *string
-		User       *database.User
-	}{
+	returnBody := returnVals{
 		Stylesheet: nil,
 		User:       u,
 	}
 
-	err = tmpl.Execute(w, data)
+	err = tmpl.Execute(w, returnBody)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
@@ -49,12 +79,24 @@ func (cfg *ApiConfig) HandlerFormArtistDisc(w http.ResponseWriter, r *http.Reque
 }
 
 func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Request) {
+	type returnVals struct {
+		Error      string
+		Stylesheet *string
+	}
+	tmplPath := filepath.Join("templates", "admin", "registerArtist.html")
+	tmpl, err := template.ParseFiles(layout, tmplPath)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		return
+	}
 	var validArtistBio bool
 
 	name := r.FormValue("artist_id")
 	retrArtist, err := api.GetArtist(&name)
 	if err != nil {
-		http.Error(w, "Error searching for artist in api", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error searching for artist in api")})
 		return
 	}
 	artist := retrArtist.Artists[0]
@@ -76,12 +118,17 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 		ImgUrl:    artist.StrArtistThumb,
 	})
 	if err != nil {
-		log.Print(err)
-		http.Error(w, "Error creating artist", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error creating artist")})
 		return
 	}
 
-	cfg.handlerCreateArtistAlbums(name, artistDB.ID)
+	_, err = cfg.handlerCreateArtistAlbums(name, artistDB.ID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error creating album")})
+		return
+	}
 	http.Redirect(w, r, "/admin/createArtistDisc", http.StatusFound)
 }
 
@@ -102,7 +149,10 @@ func (cfg *ApiConfig) handlerCreateArtistAlbums(artistId string, artistDBId uuid
 		if err != nil {
 			return database.Artist{}, err
 		}
-		cfg.handlerCreateAlbumTracks(album.IDAlbum, albumDB.ID, artistDBId)
+		_, err = cfg.handlerCreateAlbumTracks(album.IDAlbum, albumDB.ID, artistDBId)
+		if err != nil {
+			return database.Artist{}, err
+		}
 	}
 
 	return database.Artist{}, nil

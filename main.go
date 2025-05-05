@@ -55,6 +55,7 @@ func main() {
 	mux.HandleFunc("GET /app/music/{artist}/{album}/{track}", apiCfg.AuthMiddleware(apiCfg.HandlerTrack))
 
 	mux.HandleFunc("GET /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerFormArtistDisc))
+	mux.HandleFunc("GET /admin", apiCfg.AuthMiddleware(apiCfg.HandlerAdminIndex))
 
 	mux.HandleFunc("POST /app/join", apiCfg.HandlerCreateUser)
 	mux.HandleFunc("POST /app/login", apiCfg.HandlerAuthUser)

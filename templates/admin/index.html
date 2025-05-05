@@ -1,0 +1,9 @@
+{{ define "title" }}Admin{{ end }}
+
+{{ define "content" }}
+{{ if .Error }}
+ACCESS DENIED
+{{ else }}
+<a href="admin/createArtistDisc">register artists</a>
+{{ end }}
+{{ end }}
