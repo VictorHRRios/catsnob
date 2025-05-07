@@ -65,6 +65,10 @@ div.table {
   width: 100%;
 }
 
+img.profile-img {
+  width: 5rem;
+}
+
 .error { /*Arbol */
   background-color: rgba(255, 0, 0, 0.1);
   color: #a00; 

@@ -17,15 +17,18 @@
 		<nav>
 			<a href="/app/home" class="nav">LOGO</a>
 			<a href="/app/home" class="nav">CATSNOB</a>
-			{{ if .User }}
-			<a href="/app/user/{{.User.Name}}" class="nav"> {{ .User.Name }}</a>
-			<form action="/app/logout" method="POST" style="display: inline;">
-				<button type="submit">Logout</button>
-			</form>
-			{{ else }}
-			<a href="/app/login" class="nav"> Log in!</a>
-			<a href="/app/join" class="nav"> Join!</a>
-			{{ end }}
+			<div>
+				{{ if .User }}
+				<img class="profile-img" src="{{ .User.ImgUrl }}">
+				<a href="/app/user/{{.User.Name}}" class="nav"> {{ .User.Name }}</a>
+				<form action="/app/logout" method="POST" style="display: inline;">
+					<button type="submit">Logout</button>
+				</form>
+				{{ else }}
+				<a href="/app/login" class="nav"> Log in!</a>
+				<a href="/app/join" class="nav"> Join!</a>
+				{{ end }}
+			</div>
 		</nav>
 	</header>
 	{{ if .Error }}
