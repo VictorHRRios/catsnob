@@ -22,6 +22,17 @@ type Album struct {
 	ArtistID  uuid.UUID
 }
 
+type AlbumReview struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	AlbumID   uuid.UUID
+	Title     sql.NullString
+	Review    sql.NullString
+	Score     string
+}
+
 type Artist struct {
 	ID        uuid.UUID
 	CreatedAt time.Time

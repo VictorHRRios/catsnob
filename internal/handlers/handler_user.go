@@ -13,6 +13,13 @@ import (
 	"github.com/VictorHRRios/catsnob/internal/database"
 )
 
+func passwordChecker(s string) error {
+	if len(s) < 4 {
+		return fmt.Errorf("Password must be at least 4 characters long\n")
+	}
+	return nil
+}
+
 func (cfg *ApiConfig) HandlerJoin(w http.ResponseWriter, r *http.Request) {
 	type returnVals struct {
 		Error string
@@ -117,25 +124,37 @@ func (cfg *ApiConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	type returnVals struct {
 		Error      string
 		Stylesheet *string
+		User       *database.User
 	}
-	tmplPath := filepath.Join("templates", "user", "join.html")
+	tmplPath := filepath.Join("templates", "user", "register.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	name := r.FormValue("name")
 	password := r.FormValue("password")
+	if err := passwordChecker(password); err != nil {
+		if err := tmpl.Execute(w, returnVals{Error: err.Error()}); err != nil {
+			log.Print(err)
+		}
+		return
+	}
+
 	hashedPassword, err := auth.HashPassword(password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: err.Error()})
+		if err := tmpl.Execute(w, returnVals{Error: err.Error()}); err != nil {
+			log.Print(err)
+		}
 		return
 	}
 	_, err = cfg.Queries.CreateUser(context.Background(), database.CreateUserParams{
 		Name:           name,
-		ImgUrl:         "https://go.dev/doc/gopher/runningsquare.jpg",
+		ImgUrl:         "/app/assets/images/profile.jpg",
 		HashedPassword: hashedPassword,
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Could not create user: %v", err)})
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Could not create user: %v", err)}); err != nil {
+			log.Print(err)
+		}
 		return
 	}
 

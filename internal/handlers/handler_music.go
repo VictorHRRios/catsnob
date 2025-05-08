@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"path/filepath"
 
@@ -57,32 +58,42 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 		Stylesheet *string
 		Tracks     []database.GetAlbumTracksRow
 		User       *database.User
+		Album      database.Album
+		ArtistName string
 	}
-	tmplPath := filepath.Join("templates", "music", "artist.html")
+	tmplPath := filepath.Join("templates", "music", "album.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
+			log.Print(err)
+		}
 		return
 	}
 	albumName := r.PathValue("album")
+	artistName := r.PathValue("artist")
 
-	_, err = cfg.Queries.GetAlbum(context.Background(), albumName)
+	album, err := cfg.Queries.GetAlbum(context.Background(), albumName)
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching albums")})
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching albums")}); err != nil {
+			log.Print(err)
+		}
 		return
 	}
 
 	tracks, err := cfg.Queries.GetAlbumTracks(context.Background(), albumName)
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching tracks")})
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching tracks")}); err != nil {
+			log.Print(err)
+		}
 		return
 	}
 	returnBody := returnVals{
 		Stylesheet: nil,
 		Tracks:     tracks,
 		User:       u,
+		Album:      album,
+		ArtistName: artistName,
 	}
-
 	err = tmpl.Execute(w, returnBody)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
@@ -97,7 +108,7 @@ func (cfg *ApiConfig) HandlerTrack(w http.ResponseWriter, r *http.Request, u *da
 		Track      database.GetTrackRow
 		User       *database.User
 	}
-	tmplPath := filepath.Join("templates", "music", "artist.html")
+	tmplPath := filepath.Join("templates", "music", "track.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})

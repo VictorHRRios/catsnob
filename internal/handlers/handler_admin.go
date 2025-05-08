@@ -82,6 +82,7 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 	type returnVals struct {
 		Error      string
 		Stylesheet *string
+		User       *database.User
 	}
 	tmplPath := filepath.Join("templates", "admin", "registerArtist.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)

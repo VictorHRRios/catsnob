@@ -1,14 +1,38 @@
 {{ define "title" }}Album {{ end }}
 
 {{ define "content" }}
-<h1>{{(index .Tracks 0).AlbumName}}</h1>
-<img src="{{(index .Tracks 0).ImgUrl}}"></img>
+<h1>{{.Album.Name}}</h1>
+<img src="{{.Album.ImgUrl}}"></img>
+
+{{ if .User }}
+<form action="/app/createAlbumReview" method="post">
+	<input type="hidden" name="album" value="{{.Album.NameSlug}}">
+	<input type="hidden" name="artist" value="{{.ArtistName}}">
+	<label for="rating">Rate this item:</label>
+	<select name="rating" id="rating" required>
+		<option value="">Select a rating</option>
+		<option value="0.5">0.5</option>
+		<option value="1.0">1.0</option>
+		<option value="1.5">1.5</option>
+		<option value="2.0">2.0</option>
+		<option value="2.5">2.5</option>
+		<option value="3.0">3.0</option>
+		<option value="3.5">3.5</option>
+		<option value="4.0">4.0</option>
+		<option value="4.5">4.5</option>
+		<option value="5.0">5.0</option>
+	</select>
+	<button type="submit">Submit</button>
+</form>
+{{ else }}
+Rate it
+{{ end }}
 
 {{ range .Tracks}}
-	<div class="table-elem">
+<div class="table-elem">
 	<a href="./{{.AlbumNameSlug}}/{{ .NameSlug}}"> {{.AlbumTrackNumber}}. {{.Name}} </a>
-	
-	</div>
+
+</div>
 {{end}}
 
 {{ end }}
