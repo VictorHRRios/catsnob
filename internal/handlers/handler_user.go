@@ -51,6 +51,7 @@ func (cfg *ApiConfig) HandlerAuthUser(w http.ResponseWriter, r *http.Request) {
 	type returnVals struct {
 		Error      string
 		Stylesheet *string
+		User       *database.User
 	}
 	tmplPath := filepath.Join("templates", "user", "login.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
@@ -124,6 +125,7 @@ func (cfg *ApiConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	type returnVals struct {
 		Error      string
 		Stylesheet *string
+		User       *database.User
 	}
 	tmplPath := filepath.Join("templates", "user", "register.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
