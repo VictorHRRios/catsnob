@@ -16,25 +16,34 @@ func (cfg *ApiConfig) HandlerIndex(w http.ResponseWriter, r *http.Request, u *da
 		Stylesheet *string
 		Artists    []database.Artist
 		User       *database.User
-		Error      error
+		Error      string
 	}
 
 	tmplPath := filepath.Join("templates", "home", "artists.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		tmpl.Execute(w, returnVals{User: u, Error: err})
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
 
 	artists, err := cfg.Queries.GetTop12Artists(context.Background())
+	if err != nil {
+		if err := tmpl.Execute(w, returnVals{Error: "Could not fetch artists"}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
 	respBody := returnVals{
 		Stylesheet: nil,
 		Artists:    artists,
 		User:       u,
-		Error:      err,
 	}
 
-	tmpl.Execute(w, respBody)
+	if err := tmpl.Execute(w, respBody); err != nil {
+		http.Error(w, "error rendering template", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (cfg *ApiConfig) HandlerAlbums(w http.ResponseWriter, r *http.Request, u *database.User) {
@@ -42,23 +51,32 @@ func (cfg *ApiConfig) HandlerAlbums(w http.ResponseWriter, r *http.Request, u *d
 		Stylesheet *string
 		Albums     []database.GetTop12AlbumsRow
 		User       *database.User
-		Error      error
+		Error      string
 	}
 	tmplPath := filepath.Join("templates", "home", "albums.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		tmpl.Execute(w, returnVals{User: u, Error: err})
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
 
 	albums, err := cfg.Queries.GetTop12Albums(context.Background())
+	if err != nil {
+		if err := tmpl.Execute(w, returnVals{Error: "Could not fetch albums"}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
 	respBody := returnVals{
 		Stylesheet: nil,
 		Albums:     albums,
 		User:       u,
-		Error:      err,
 	}
-	err = tmpl.Execute(w, respBody)
+	if err := tmpl.Execute(w, respBody); err != nil {
+		http.Error(w, "error rendering template", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (cfg *ApiConfig) HandlerTracks(w http.ResponseWriter, r *http.Request, u *database.User) {
@@ -66,21 +84,30 @@ func (cfg *ApiConfig) HandlerTracks(w http.ResponseWriter, r *http.Request, u *d
 		Stylesheet *string
 		Tracks     []database.GetTop12TracksRow
 		User       *database.User
-		Error      error
+		Error      string
 	}
 	tmplPath := filepath.Join("templates", "home", "tracks.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		tmpl.Execute(w, returnVals{User: u, Error: err})
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
 
 	tracks, err := cfg.Queries.GetTop12Tracks(context.Background())
+	if err != nil {
+		if err := tmpl.Execute(w, returnVals{Error: "Could not fetch tracks"}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
 	respBody := returnVals{
 		Stylesheet: nil,
 		Tracks:     tracks,
 		User:       u,
-		Error:      err,
 	}
-	tmpl.Execute(w, respBody)
+	if err := tmpl.Execute(w, respBody); err != nil {
+		http.Error(w, "error rendering template", http.StatusInternalServerError)
+		return
+	}
 }

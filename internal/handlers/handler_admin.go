@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"html/template"
 	"net/http"
 	"path/filepath"
@@ -24,17 +23,21 @@ func (cfg *ApiConfig) HandlerAdminIndex(w http.ResponseWriter, r *http.Request, 
 	tmplPath := filepath.Join("templates", "admin", "index.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		http.Error(w, "Error Parsing Files", http.StatusInternalServerError)
 		return
 	}
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(http.StatusForbidden)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Access denied for user")})
+		if err := tmpl.Execute(w, returnVals{Error: "Access denied for user"}); err != nil {
+			http.Error(w, "Error rendering template", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
-	err = tmpl.Execute(w, nil)
-	if err != nil {
+	returnBody := returnVals{
+		User: u,
+	}
+	if err := tmpl.Execute(w, returnBody); err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
@@ -49,36 +52,39 @@ func (cfg *ApiConfig) HandlerFormArtistDisc(w http.ResponseWriter, r *http.Reque
 	tmplPath := filepath.Join("templates", "admin", "registerArtist.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		http.Error(w, "Error Parsing Files", http.StatusInternalServerError)
 		return
 	}
 
 	if u == nil {
 		w.WriteHeader(http.StatusForbidden)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Access denied, no user logged in")})
+		if err := tmpl.Execute(w, returnVals{Error: "Access denied, no user logged in"}); err != nil {
+			http.Error(w, "Error rendering template", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
 	if !u.IsAdmin {
 		w.WriteHeader(http.StatusForbidden)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Access denied for user")})
+		if err := tmpl.Execute(w, returnVals{Error: "Access denied for user"}); err != nil {
+			http.Error(w, "Error rendering template", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
 	returnBody := returnVals{
-		Stylesheet: nil,
-		User:       u,
+		User: u,
 	}
 
-	err = tmpl.Execute(w, returnBody)
-	if err != nil {
+	if err := tmpl.Execute(w, returnBody); err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
 }
 
-func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Request) {
+func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Request, u *database.User) {
 	type returnVals struct {
 		Error      string
 		Stylesheet *string
@@ -87,8 +93,7 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 	tmplPath := filepath.Join("templates", "admin", "registerArtist.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
 	var validArtistBio bool
@@ -96,8 +101,11 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 	name := r.FormValue("artist_id")
 	retrArtist, err := api.GetArtist(&name)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error searching for artist in api")})
+		w.WriteHeader(http.StatusNotFound)
+		if err := tmpl.Execute(w, returnVals{Error: "Error searching for artist in api"}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 	artist := retrArtist.Artists[0]
@@ -108,26 +116,23 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 		validArtistBio = true
 	}
 
-	nameSlug := strings.ReplaceAll(strings.ToLower(artist.StrArtist), " ", "_")
-
 	artistDB, err := cfg.Queries.CreateArtist(context.Background(), database.CreateArtistParams{
 		FormedAt:  artist.IntFormedYear,
 		Name:      artist.StrArtist,
-		NameSlug:  nameSlug,
 		Biography: sql.NullString{String: *artist.StrBiographyEN, Valid: validArtistBio},
 		Genre:     artist.StrGenre,
 		ImgUrl:    artist.StrArtistThumb,
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error creating artist")})
+		tmpl.Execute(w, returnVals{Error: "Error creating artist"})
 		return
 	}
 
 	_, err = cfg.handlerCreateArtistAlbums(name, artistDB.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error creating album")})
+		tmpl.Execute(w, returnVals{Error: "Error creating album"})
 		return
 	}
 	http.Redirect(w, r, "/admin/createArtistDisc", http.StatusFound)

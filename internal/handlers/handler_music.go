@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"path/filepath"
 
@@ -23,35 +22,42 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 	tmplPath := filepath.Join("templates", "music", "artist.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
 	artistID, err := uuid.Parse(r.PathValue("artistid"))
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 	artist, err := cfg.Queries.GetArtist(context.Background(), artistID)
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
 	artistAlbums, err := cfg.Queries.GetArtistAlbums(context.Background(), artistID)
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
 	returnBody := returnVals{
-		Stylesheet: nil,
-		Artist:     artist,
-		Albums:     artistAlbums,
-		User:       u,
+		Artist: artist,
+		Albums: artistAlbums,
+		User:   u,
 	}
 
-	err = tmpl.Execute(w, returnBody)
-	if err != nil {
+	if err = tmpl.Execute(w, returnBody); err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
@@ -69,40 +75,41 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 	tmplPath := filepath.Join("templates", "music", "album.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
-			log.Print(err)
-		}
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
 	albumID, err := uuid.Parse(r.PathValue("albumid"))
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
 	album, err := cfg.Queries.GetAlbum(context.Background(), albumID)
 	if err != nil {
-		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching albums")}); err != nil {
-			log.Print(err)
+		if err := tmpl.Execute(w, returnVals{Error: "Error fetching albums"}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
 		}
 		return
 	}
 
 	tracks, err := cfg.Queries.GetAlbumTracks(context.Background(), albumID)
 	if err != nil {
-		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching tracks")}); err != nil {
-			log.Print(err)
+		if err := tmpl.Execute(w, returnVals{Error: "Error fetching tracks"}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
 		}
 		return
 	}
 	returnBody := returnVals{
-		Stylesheet: nil,
-		Tracks:     tracks,
-		User:       u,
-		Album:      album,
+		Tracks: tracks,
+		User:   u,
+		Album:  album,
 	}
-	err = tmpl.Execute(w, returnBody)
-	if err != nil {
+	if err = tmpl.Execute(w, returnBody); err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
@@ -118,29 +125,33 @@ func (cfg *ApiConfig) HandlerTrack(w http.ResponseWriter, r *http.Request, u *da
 	tmplPath := filepath.Join("templates", "music", "track.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
 	trackID, err := uuid.Parse(r.PathValue("trackid"))
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
 	track, err := cfg.Queries.GetTrack(context.Background(), trackID)
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching track")})
+		if err := tmpl.Execute(w, returnVals{Error: "Error fetching track"}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
 	returnBody := returnVals{
-		Stylesheet: nil,
-		Track:      track,
-		User:       u,
+		Track: track,
+		User:  u,
 	}
 
-	err = tmpl.Execute(w, returnBody)
-	if err != nil {
+	if err = tmpl.Execute(w, returnBody); err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}

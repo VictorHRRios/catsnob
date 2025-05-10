@@ -61,7 +61,7 @@ func main() {
 	mux.HandleFunc("POST /app/join", apiCfg.HandlerCreateUser)
 	mux.HandleFunc("POST /app/login", apiCfg.HandlerAuthUser)
 	mux.HandleFunc("POST /app/logout", apiCfg.HandlerLogout)
-	mux.HandleFunc("POST /admin/createArtistDisc", apiCfg.HandlerCreateArtistDisc)
+	mux.HandleFunc("POST /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerCreateArtistDisc))
 
 	srv := &http.Server{
 		Addr:    ":" + port,

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -21,44 +20,42 @@ func passwordChecker(s string) error {
 }
 
 func (cfg *ApiConfig) HandlerJoin(w http.ResponseWriter, r *http.Request) {
-	type returnVals struct {
-		Error string
-	}
 	tmplPath := filepath.Join("templates", "user", "register.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: err.Error()})
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
 
-	tmpl.Execute(w, nil)
+	if err := tmpl.Execute(w, nil); err != nil {
+		http.Error(w, "error rendering template", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (cfg *ApiConfig) HandlerLogin(w http.ResponseWriter, r *http.Request) {
-	type returnVals struct {
-		Error string
-	}
 	tmplPath := filepath.Join("templates", "user", "login.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		tmpl.Execute(w, returnVals{Error: err.Error()})
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
 
-	tmpl.Execute(w, nil)
+	if err := tmpl.Execute(w, nil); err != nil {
+		http.Error(w, "error rendering template", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (cfg *ApiConfig) HandlerAuthUser(w http.ResponseWriter, r *http.Request) {
 	type returnVals struct {
 		Error      string
-		User       database.User
 		Stylesheet *string
 	}
 	tmplPath := filepath.Join("templates", "user", "login.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: err.Error()})
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
 	name := r.FormValue("name")
@@ -68,7 +65,8 @@ func (cfg *ApiConfig) HandlerAuthUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		err := tmpl.Execute(w, returnVals{Error: "User does not exist"})
 		if err != nil {
-			log.Println("template execute error:", err)
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
 		}
 		return
 	}
@@ -77,7 +75,8 @@ func (cfg *ApiConfig) HandlerAuthUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		err := tmpl.Execute(w, returnVals{Error: "Error authenticating user"})
 		if err != nil {
-			log.Println("template execute error:", err)
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
 		}
 		return
 	}
@@ -87,7 +86,8 @@ func (cfg *ApiConfig) HandlerAuthUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		err := tmpl.Execute(w, returnVals{Error: "Error creating JWT"})
 		if err != nil {
-			log.Println("template execute error:", err)
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
 		}
 		return
 	}
@@ -124,15 +124,19 @@ func (cfg *ApiConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	type returnVals struct {
 		Error      string
 		Stylesheet *string
-		User       *database.User
 	}
 	tmplPath := filepath.Join("templates", "user", "register.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
+	if err != nil {
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
+		return
+	}
 	name := r.FormValue("name")
 	password := r.FormValue("password")
 	if err := passwordChecker(password); err != nil {
 		if err := tmpl.Execute(w, returnVals{Error: err.Error()}); err != nil {
-			log.Print(err)
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
 		}
 		return
 	}
@@ -141,7 +145,8 @@ func (cfg *ApiConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		if err := tmpl.Execute(w, returnVals{Error: err.Error()}); err != nil {
-			log.Print(err)
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
 		}
 		return
 	}
@@ -153,7 +158,8 @@ func (cfg *ApiConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Could not create user: %v", err)}); err != nil {
-			log.Print(err)
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
 		}
 		return
 	}
@@ -171,23 +177,29 @@ func (cfg *ApiConfig) HandlerUserProfile(w http.ResponseWriter, r *http.Request,
 	}
 	tmplPath := filepath.Join("templates", "user", "profile.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
+	if err != nil {
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
+		return
+	}
 	userName := r.PathValue("username")
 	user, err := cfg.Queries.GetUser(context.Background(), userName)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Could not fetch user: %v", err)})
+		err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Could not fetch user: %v", err)})
+		if err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
 	returnBody := returnVals{
-		Stylesheet: nil,
-		Name:       user.Name,
-		Img:        user.ImgUrl,
-		User:       u,
+		Name: user.Name,
+		Img:  user.ImgUrl,
+		User: u,
 	}
 
-	err = tmpl.Execute(w, returnBody)
-	if err != nil {
+	if err := tmpl.Execute(w, returnBody); err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}

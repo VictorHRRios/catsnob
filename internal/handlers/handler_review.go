@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"path/filepath"
 
@@ -21,8 +20,7 @@ func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Re
 	tmplPath := filepath.Join("templates", "music", "album.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
 
@@ -30,14 +28,19 @@ func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Re
 	albumID, err := uuid.Parse(r.FormValue("albumid"))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error: %v", err)})
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error: %v", err)}); err != nil {
+			http.Error(w, "error parsing files", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
-	log.Print(albumID)
 	album, err := cfg.Queries.GetAlbum(context.Background(), albumID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Album does not exist: %v", err)})
+		w.WriteHeader(http.StatusNotFound)
+		if err := tmpl.Execute(w, returnVals{Error: "Album not found"}); err != nil {
+			http.Error(w, "error parsing files", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 	_, err = cfg.Queries.CreateReviewShort(context.Background(), database.CreateReviewShortParams{
@@ -48,7 +51,10 @@ func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
+			http.Error(w, "error parsing files", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/app/album/%v", albumID), http.StatusFound)
