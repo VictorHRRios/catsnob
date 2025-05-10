@@ -6,8 +6,7 @@
 
 {{ if .User }}
 <form action="/app/createAlbumReview" method="post">
-	<input type="hidden" name="album" value="{{.Album.NameSlug}}">
-	<input type="hidden" name="artist" value="{{.ArtistName}}">
+	<input type="hidden" name="albumid" value="{{.Album.ID}}">
 	<label for="rating">Rate this item:</label>
 	<select name="rating" id="rating" required>
 		<option value="">Select a rating</option>
@@ -30,7 +29,7 @@ Rate it
 
 {{ range .Tracks}}
 <div class="table-elem">
-	<a href="./{{.AlbumNameSlug}}/{{ .NameSlug}}"> {{.AlbumTrackNumber}}. {{.Name}} </a>
+	<a href="/app/track/{{.ID}}"> {{.AlbumTrackNumber}}. {{.Name}} </a>
 
 </div>
 {{end}}

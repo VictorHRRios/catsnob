@@ -13,18 +13,25 @@ values (
 returning *;
 
 -- name: GetAlbum :one
-select * from albums where name_slug = $1;
+select * from albums where id = $1;
 
 -- name: GetArtistAlbums :many
-select albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug as artist_name_slug
+select albums.id, albums.name, albums.genre, albums.img_url, artists.name as artist_name
 from albums
 join artists
 on albums.artist_id = artists.id
-where artists.name_slug = $1;
+where artists.id = $1;
+
+-- name: GetAlbumTracks :many
+select tracks.id, tracks.name, tracks.duration, tracks.album_track_number, albums.name as album_name, albums.img_url as img_url
+from tracks
+join albums
+on tracks.album_id = albums.id
+where albums.id = $1;
 
 -- name: GetTop12Albums :many
 select 
-	albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug as artist_name_slug 
+	albums.id, albums.name, albums.genre, albums.img_url, artists.name as artist_name
 from albums
 join artists
 on albums.artist_id = artists.id

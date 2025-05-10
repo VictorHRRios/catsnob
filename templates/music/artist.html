@@ -11,7 +11,7 @@
 
 {{ range .Albums}}
 <div class="table-elem">
-	<a href="./{{.ArtistNameSlug}}/{{ .NameSlug}}"> <img src="{{.ImgUrl }}"> {{.Name}} </a>
+	<a href="/app/album/{{ .ID }}"> <img src="{{.ImgUrl }}"> {{.Name}} </a>
 
 </div>
 {{end}}

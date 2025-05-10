@@ -1,28 +1,28 @@
 {{ define "title" }}Home Page | Albums{{ end }}
 
 {{ define "content" }}
-	<div id="content">
-		<div class="header">
-			<a href="/app/home">
+<div id="content">
+	<div class="header">
+		<a href="/app/home">
 			Artists
-			</a>
-			<a href="/app/home/albums" class="selected">
+		</a>
+		<a href="/app/home/albums" class="selected">
 			Albums
-			</a>
-			<a href="/app/home/tracks">
+		</a>
+		<a href="/app/home/tracks">
 			Tracks
-			</a>
-			<a href="/app/home">
+		</a>
+		<a href="/app/home">
 			Users
-			</a>
-		</div>
-		<div class="table">
-			{{ range .Albums}}
-				<div class="table-elem">
-					<img src="{{.ImgUrl }}">
-			<a class="name" href="/app/music/{{.ArtistNameSlug}}/{{ .NameSlug }}"> {{ .Name }}</a>
-				</div>
-			{{end}}
-		</div>
+		</a>
 	</div>
+	<div class="table">
+		{{ range .Albums}}
+		<div class="table-elem">
+			<img src="{{.ImgUrl }}">
+			<a class="name" href="/app/album/{{ .ID }}"> {{ .Name }}</a>
+		</div>
+		{{end}}
+	</div>
+</div>
 {{ end }}

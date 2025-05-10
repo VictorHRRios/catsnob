@@ -20,8 +20,7 @@
 		{{ range .Tracks}}
 		<div class="table-elem">
 			<img src="{{.ImgUrl }}">
-			<a class="name" href="/app/music/{{ .ArtistNameSlug }}/{{ .AlbumNameSlug }}/{{ .NameSlug }}"> {{
-				.Name }}</a>
+			<a class="name" href="/app/track/{{ .ID }}"> {{ .Name }}</a>
 		</div>
 		{{end}}
 	</div>

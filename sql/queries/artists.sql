@@ -15,7 +15,7 @@ returning *;
 
 -- name: GetArtist :one
 select * from artists
-where name_slug = $1;
+where id = $1;
 
 -- name: GetTop12Artists :many
 select * from artists limit 12;

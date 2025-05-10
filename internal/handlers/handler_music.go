@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/VictorHRRios/catsnob/internal/database"
+	"github.com/google/uuid"
 )
 
 func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Request, u *database.User) {
@@ -25,14 +26,18 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
 		return
 	}
-	artistName := r.PathValue("artist")
-	artist, err := cfg.Queries.GetArtist(context.Background(), artistName)
+	artistID, err := uuid.Parse(r.PathValue("artistid"))
+	if err != nil {
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		return
+	}
+	artist, err := cfg.Queries.GetArtist(context.Background(), artistID)
 	if err != nil {
 		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
 		return
 	}
 
-	artistAlbums, err := cfg.Queries.GetArtistAlbums(context.Background(), artistName)
+	artistAlbums, err := cfg.Queries.GetArtistAlbums(context.Background(), artistID)
 	if err != nil {
 		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
 		return
@@ -69,10 +74,13 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 		}
 		return
 	}
-	albumName := r.PathValue("album")
-	artistName := r.PathValue("artist")
+	albumID, err := uuid.Parse(r.PathValue("albumid"))
+	if err != nil {
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		return
+	}
 
-	album, err := cfg.Queries.GetAlbum(context.Background(), albumName)
+	album, err := cfg.Queries.GetAlbum(context.Background(), albumID)
 	if err != nil {
 		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching albums")}); err != nil {
 			log.Print(err)
@@ -80,7 +88,7 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 		return
 	}
 
-	tracks, err := cfg.Queries.GetAlbumTracks(context.Background(), albumName)
+	tracks, err := cfg.Queries.GetAlbumTracks(context.Background(), albumID)
 	if err != nil {
 		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching tracks")}); err != nil {
 			log.Print(err)
@@ -92,7 +100,6 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 		Tracks:     tracks,
 		User:       u,
 		Album:      album,
-		ArtistName: artistName,
 	}
 	err = tmpl.Execute(w, returnBody)
 	if err != nil {
@@ -114,9 +121,13 @@ func (cfg *ApiConfig) HandlerTrack(w http.ResponseWriter, r *http.Request, u *da
 		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
 		return
 	}
-	trackName := r.PathValue("track")
+	trackID, err := uuid.Parse(r.PathValue("trackid"))
+	if err != nil {
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
+		return
+	}
 
-	track, err := cfg.Queries.GetTrack(context.Background(), trackName)
+	track, err := cfg.Queries.GetTrack(context.Background(), trackID)
 	if err != nil {
 		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching track")})
 		return

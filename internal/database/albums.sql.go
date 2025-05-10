@@ -57,11 +57,11 @@ func (q *Queries) CreateAlbum(ctx context.Context, arg CreateAlbumParams) (Album
 }
 
 const getAlbum = `-- name: GetAlbum :one
-select id, created_at, updated_at, name, name_slug, genre, img_url, artist_id from albums where name_slug = $1
+select id, created_at, updated_at, name, name_slug, genre, img_url, artist_id from albums where id = $1
 `
 
-func (q *Queries) GetAlbum(ctx context.Context, nameSlug string) (Album, error) {
-	row := q.db.QueryRowContext(ctx, getAlbum, nameSlug)
+func (q *Queries) GetAlbum(ctx context.Context, id uuid.UUID) (Album, error) {
+	row := q.db.QueryRowContext(ctx, getAlbum, id)
 	var i Album
 	err := row.Scan(
 		&i.ID,
@@ -76,25 +76,71 @@ func (q *Queries) GetAlbum(ctx context.Context, nameSlug string) (Album, error) 
 	return i, err
 }
 
+const getAlbumTracks = `-- name: GetAlbumTracks :many
+select tracks.id, tracks.name, tracks.duration, tracks.album_track_number, albums.name as album_name, albums.img_url as img_url
+from tracks
+join albums
+on tracks.album_id = albums.id
+where albums.id = $1
+`
+
+type GetAlbumTracksRow struct {
+	ID               uuid.UUID
+	Name             string
+	Duration         int32
+	AlbumTrackNumber int32
+	AlbumName        string
+	ImgUrl           string
+}
+
+func (q *Queries) GetAlbumTracks(ctx context.Context, id uuid.UUID) ([]GetAlbumTracksRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAlbumTracks, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAlbumTracksRow
+	for rows.Next() {
+		var i GetAlbumTracksRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Duration,
+			&i.AlbumTrackNumber,
+			&i.AlbumName,
+			&i.ImgUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getArtistAlbums = `-- name: GetArtistAlbums :many
-select albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug as artist_name_slug
+select albums.id, albums.name, albums.genre, albums.img_url, artists.name as artist_name
 from albums
 join artists
 on albums.artist_id = artists.id
-where artists.name_slug = $1
+where artists.id = $1
 `
 
 type GetArtistAlbumsRow struct {
-	Name           string
-	NameSlug       string
-	Genre          string
-	ImgUrl         string
-	ArtistName     string
-	ArtistNameSlug string
+	ID         uuid.UUID
+	Name       string
+	Genre      string
+	ImgUrl     string
+	ArtistName string
 }
 
-func (q *Queries) GetArtistAlbums(ctx context.Context, nameSlug string) ([]GetArtistAlbumsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getArtistAlbums, nameSlug)
+func (q *Queries) GetArtistAlbums(ctx context.Context, id uuid.UUID) ([]GetArtistAlbumsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getArtistAlbums, id)
 	if err != nil {
 		return nil, err
 	}
@@ -103,12 +149,11 @@ func (q *Queries) GetArtistAlbums(ctx context.Context, nameSlug string) ([]GetAr
 	for rows.Next() {
 		var i GetArtistAlbumsRow
 		if err := rows.Scan(
+			&i.ID,
 			&i.Name,
-			&i.NameSlug,
 			&i.Genre,
 			&i.ImgUrl,
 			&i.ArtistName,
-			&i.ArtistNameSlug,
 		); err != nil {
 			return nil, err
 		}
@@ -125,7 +170,7 @@ func (q *Queries) GetArtistAlbums(ctx context.Context, nameSlug string) ([]GetAr
 
 const getTop12Albums = `-- name: GetTop12Albums :many
 select 
-	albums.name, albums.name_slug, albums.genre, albums.img_url, artists.name as artist_name, artists.name_slug as artist_name_slug 
+	albums.id, albums.name, albums.genre, albums.img_url, artists.name as artist_name
 from albums
 join artists
 on albums.artist_id = artists.id
@@ -133,12 +178,11 @@ limit 12
 `
 
 type GetTop12AlbumsRow struct {
-	Name           string
-	NameSlug       string
-	Genre          string
-	ImgUrl         string
-	ArtistName     string
-	ArtistNameSlug string
+	ID         uuid.UUID
+	Name       string
+	Genre      string
+	ImgUrl     string
+	ArtistName string
 }
 
 func (q *Queries) GetTop12Albums(ctx context.Context) ([]GetTop12AlbumsRow, error) {
@@ -151,12 +195,11 @@ func (q *Queries) GetTop12Albums(ctx context.Context) ([]GetTop12AlbumsRow, erro
 	for rows.Next() {
 		var i GetTop12AlbumsRow
 		if err := rows.Scan(
+			&i.ID,
 			&i.Name,
-			&i.NameSlug,
 			&i.Genre,
 			&i.ImgUrl,
 			&i.ArtistName,
-			&i.ArtistNameSlug,
 		); err != nil {
 			return nil, err
 		}

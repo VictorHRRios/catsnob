@@ -8,6 +8,8 @@ package database
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const createArtist = `-- name: CreateArtist :one
@@ -61,11 +63,11 @@ func (q *Queries) CreateArtist(ctx context.Context, arg CreateArtistParams) (Art
 
 const getArtist = `-- name: GetArtist :one
 select id, created_at, updated_at, formed_at, name, name_slug, biography, genre, img_url from artists
-where name_slug = $1
+where id = $1
 `
 
-func (q *Queries) GetArtist(ctx context.Context, nameSlug string) (Artist, error) {
-	row := q.db.QueryRowContext(ctx, getArtist, nameSlug)
+func (q *Queries) GetArtist(ctx context.Context, id uuid.UUID) (Artist, error) {
+	row := q.db.QueryRowContext(ctx, getArtist, id)
 	var i Artist
 	err := row.Scan(
 		&i.ID,

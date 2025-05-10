@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/VictorHRRios/catsnob/internal/database"
+	"github.com/google/uuid"
 )
 
 func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Request, u *database.User) {
@@ -26,10 +27,14 @@ func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Re
 	}
 
 	rating := r.FormValue("rating")
-	albumName := r.FormValue("album")
-	artistName := r.FormValue("artist")
-	log.Print(albumName)
-	album, err := cfg.Queries.GetAlbum(context.Background(), albumName)
+	albumID, err := uuid.Parse(r.FormValue("albumid"))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error: %v", err)})
+		return
+	}
+	log.Print(albumID)
+	album, err := cfg.Queries.GetAlbum(context.Background(), albumID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Album does not exist: %v", err)})
@@ -46,5 +51,5 @@ func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Re
 		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)})
 		return
 	}
-	http.Redirect(w, r, fmt.Sprintf("/app/music/%v/%v", artistName, albumName), http.StatusFound)
+	http.Redirect(w, r, fmt.Sprintf("/app/album/%v", albumID), http.StatusFound)
 }

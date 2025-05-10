@@ -50,9 +50,9 @@ func main() {
 	mux.HandleFunc("GET /app/join", apiCfg.HandlerJoin)
 	mux.HandleFunc("GET /app/login", apiCfg.HandlerLogin)
 	mux.HandleFunc("GET /app/user/{username}", apiCfg.AuthMiddleware(apiCfg.HandlerUserProfile))
-	mux.HandleFunc("GET /app/music/{artist}", apiCfg.AuthMiddleware(apiCfg.HandlerArtistProfile))
-	mux.HandleFunc("GET /app/music/{artist}/{album}", apiCfg.AuthMiddleware(apiCfg.HandlerAlbum))
-	mux.HandleFunc("GET /app/music/{artist}/{album}/{track}", apiCfg.AuthMiddleware(apiCfg.HandlerTrack))
+	mux.HandleFunc("GET /app/artist/{artistid}", apiCfg.AuthMiddleware(apiCfg.HandlerArtistProfile))
+	mux.HandleFunc("GET /app/album/{albumid}", apiCfg.AuthMiddleware(apiCfg.HandlerAlbum))
+	mux.HandleFunc("GET /app/track/{trackid}", apiCfg.AuthMiddleware(apiCfg.HandlerTrack))
 
 	mux.HandleFunc("GET /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerFormArtistDisc))
 	mux.HandleFunc("GET /admin", apiCfg.AuthMiddleware(apiCfg.HandlerAdminIndex))
