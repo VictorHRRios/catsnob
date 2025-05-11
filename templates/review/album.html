@@ -1,0 +1,17 @@
+{{ define "title" }}Review{{ end }}
+
+{{ define "content" }}
+
+<h2> Album Review by <a href="/app/user/{{.Review.Username}}"><h1>{{ .Review.Username }}</h1></a> </h2>
+<div class="music-profile"> 
+	<div>
+	<a href="/app/album/{{.Review.AlbumID}}">
+		<img src="{{.Review.AlbumImg}}"> 
+	</a>
+	<h2> {{.Review.AlbumName}}</h2>
+	</div>
+	{{.Review.Score}}
+	{{ .Title }}
+	{{ .AlbumReview }}
+</div>
+{{ end }}

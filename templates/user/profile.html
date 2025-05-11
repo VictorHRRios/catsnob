@@ -1,9 +1,9 @@
-{{ define "title" }}User Profile{{ end }}
+{{ define "title" }}{{ .ProfileUser.Name}}{{ end }}
 
 {{ define "content" }}
 
-<h1>{{ .Name }}</h1>
-<img class="profile-img" src="{{ .Img }}">
+<h1>{{ .ProfileUser.Name }}</h1>
+<img class="profile-img" src="{{ .ProfileUser.ImgUrl }}">
 <h2> Reviews </h2>
 <div class="reviews"> 
 	<p> Album Image </p>
@@ -14,7 +14,7 @@
 	<a href="/app/album/{{ .AlbumID }}"><img src="{{ .ImgUrl }}"></a>
 	<p>{{ .Name }}</p>
 	<p>{{ .Score }}</p>
-	<div> View / Edit / Delete</div>
+	<div> <a href="/app/user/{{ $.ProfileUser.Name }}/review/{{ .ID}}">View</a></div>
 	{{ end }}
 </div>
 {{ end }}

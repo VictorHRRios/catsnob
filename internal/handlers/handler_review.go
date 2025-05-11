@@ -59,3 +59,49 @@ func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Re
 	}
 	http.Redirect(w, r, fmt.Sprintf("/app/album/%v", albumID), http.StatusFound)
 }
+
+func (cfg *ApiConfig) HandlerUserReview(w http.ResponseWriter, r *http.Request, u *database.User) {
+	type returnVals struct {
+		Error       string
+		Stylesheet  *string
+		User        *database.User
+		ProfileUser *database.User
+		Review      *database.GetReviewRow
+		Title       string
+		AlbumReview string
+	}
+	tmplPath := filepath.Join("templates", "review", "album.html")
+	tmpl, err := template.ParseFiles(layout, tmplPath)
+	if err != nil {
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
+		return
+	}
+	reviewID, err := uuid.Parse(r.PathValue("reviewid"))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error: %v", err)}); err != nil {
+			http.Error(w, "error parsing files", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	review, err := cfg.Queries.GetReview(context.Background(), reviewID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error: %v", err)}); err != nil {
+			http.Error(w, "error parsing files", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+	returnBody := returnVals{
+		User:        u,
+		Review:      &review,
+		Title:       review.Title.String,
+		AlbumReview: review.Review.String,
+	}
+	if err := tmpl.Execute(w, returnBody); err != nil {
+		http.Error(w, "error rendering template", http.StatusInternalServerError)
+	}
+}

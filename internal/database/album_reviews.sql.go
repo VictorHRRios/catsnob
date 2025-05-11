@@ -95,6 +95,49 @@ func (q *Queries) CreateReviewShort(ctx context.Context, arg CreateReviewShortPa
 	return i, err
 }
 
+const getReview = `-- name: GetReview :one
+select album_reviews.id, album_reviews.created_at, album_reviews.updated_at, album_reviews.user_id, album_reviews.album_id, album_reviews.title, album_reviews.review, album_reviews.score, albums.id as album_id, albums.name as album_name, albums.img_url as album_img, users.name as username
+from album_reviews
+join albums on albums.id = album_reviews.album_id
+join users on users.id = album_reviews.user_id
+where album_reviews.id = $1
+`
+
+type GetReviewRow struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	AlbumID   uuid.UUID
+	Title     sql.NullString
+	Review    sql.NullString
+	Score     string
+	AlbumID_2 uuid.UUID
+	AlbumName string
+	AlbumImg  string
+	Username  string
+}
+
+func (q *Queries) GetReview(ctx context.Context, id uuid.UUID) (GetReviewRow, error) {
+	row := q.db.QueryRowContext(ctx, getReview, id)
+	var i GetReviewRow
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserID,
+		&i.AlbumID,
+		&i.Title,
+		&i.Review,
+		&i.Score,
+		&i.AlbumID_2,
+		&i.AlbumName,
+		&i.AlbumImg,
+		&i.Username,
+	)
+	return i, err
+}
+
 const getReviewByAlbum = `-- name: GetReviewByAlbum :many
 select id, created_at, updated_at, user_id, album_id, title, review, score from album_reviews
 where album_id = $1

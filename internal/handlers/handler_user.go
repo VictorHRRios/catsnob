@@ -172,12 +172,13 @@ func (cfg *ApiConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) 
 
 func (cfg *ApiConfig) HandlerUserProfile(w http.ResponseWriter, r *http.Request, u *database.User) {
 	type returnVals struct {
-		Error      string
-		Stylesheet *string
-		Name       string
-		Img        string
-		User       *database.User
-		Reviews    []database.GetReviewByUserRow
+		Error       string
+		Stylesheet  *string
+		Name        string
+		Img         string
+		User        *database.User
+		ProfileUser *database.User
+		Reviews     []database.GetReviewByUserRow
 	}
 	tmplPath := filepath.Join("templates", "user", "profile.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
@@ -201,10 +202,9 @@ func (cfg *ApiConfig) HandlerUserProfile(w http.ResponseWriter, r *http.Request,
 	reviews, err := cfg.Queries.GetReviewByUser(context.Background(), user.ID)
 
 	returnBody := returnVals{
-		Name:    user.Name,
-		Img:     user.ImgUrl,
-		User:    u,
-		Reviews: reviews,
+		ProfileUser: &user,
+		Reviews:     reviews,
+		User:        u,
 	}
 
 	if err := tmpl.Execute(w, returnBody); err != nil {
