@@ -1,6 +1,11 @@
-{{ define "title" }}Album {{ end }}
+{{ define "title" }} {{ .Track.Name }} {{ end }}
 
 {{ define "content" }}
-<h1>{{ .Track.Name }}</h1>
+<div class="music-profile">
+	<div>
+		<h1>{{ .Track.AlbumTrackNumber}}. {{ .Track.Name }}</h1>
+		<a href="/app/album/{{.Track.AlbumID}}"><img src="{{.Track.ImgUrl}}"></img></a>
+	</div>
+</div>
 
 {{ end }}

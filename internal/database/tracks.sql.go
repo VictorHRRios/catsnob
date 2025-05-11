@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -107,14 +108,27 @@ func (q *Queries) GetTop12Tracks(ctx context.Context) ([]GetTop12TracksRow, erro
 }
 
 const getTrack = `-- name: GetTrack :one
-select id, created_at, updated_at, name, duration, album_track_number, artist_id, album_id
+select tracks.id, tracks.created_at, tracks.updated_at, tracks.name, tracks.duration, tracks.album_track_number, tracks.artist_id, tracks.album_id, albums.img_url
 from tracks
+join albums on albums.id = tracks.album_id
 where tracks.id = $1
 `
 
-func (q *Queries) GetTrack(ctx context.Context, id uuid.UUID) (Track, error) {
+type GetTrackRow struct {
+	ID               uuid.UUID
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	Name             string
+	Duration         int32
+	AlbumTrackNumber int32
+	ArtistID         uuid.UUID
+	AlbumID          uuid.UUID
+	ImgUrl           string
+}
+
+func (q *Queries) GetTrack(ctx context.Context, id uuid.UUID) (GetTrackRow, error) {
 	row := q.db.QueryRowContext(ctx, getTrack, id)
-	var i Track
+	var i GetTrackRow
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
@@ -124,6 +138,7 @@ func (q *Queries) GetTrack(ctx context.Context, id uuid.UUID) (Track, error) {
 		&i.AlbumTrackNumber,
 		&i.ArtistID,
 		&i.AlbumID,
+		&i.ImgUrl,
 	)
 	return i, err
 }

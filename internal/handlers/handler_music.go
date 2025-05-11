@@ -119,7 +119,7 @@ func (cfg *ApiConfig) HandlerTrack(w http.ResponseWriter, r *http.Request, u *da
 	type returnVals struct {
 		Error      string
 		Stylesheet *string
-		Track      database.Track
+		Track      database.GetTrackRow
 		User       *database.User
 	}
 	tmplPath := filepath.Join("templates", "music", "track.html")

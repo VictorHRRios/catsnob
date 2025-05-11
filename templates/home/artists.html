@@ -12,15 +12,12 @@
 		<a href="/app/home/tracks">
 			Tracks
 		</a>
-		<a href="/app/home">
-			Users
-		</a>
 	</div>
 	<div class="table">
 		{{ range .Artists}}
 		<div class="table-elem">
-			<img src="{{.ImgUrl }}">
-			<a class="name" href="/app/artist/{{ .ID }}"> {{ .Name }}</a>
+			<a class="name" href="/app/artist/{{ .ID }}"> <img src="{{.ImgUrl }}"> {{ .Name }}</a>
+			
 		</div>
 		{{end}}
 	</div>

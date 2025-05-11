@@ -1,19 +1,25 @@
-{{ define "title" }}User Profile{{ end }}
+{{ define "title" }}{{ .Artist.Name }}{{ end }}
 
 {{ define "content" }}
 
-<h1>{{ .Artist.Name }}</h1>
-<img src="{{ .Artist.ImgUrl }}">
-<h2>{{ .Artist.FormedAt }}</h2>
-<h2>{{ .Artist.Genre }}</h2>
-<p>{{ .Artist.Biography }}</p>
+<div class="music-profile">
+	<div>
+		<img src="{{ .Artist.ImgUrl }}">
+		<h1>{{ .Artist.Name }}</h1>
+	</div>
+	<div>
+	<h2>{{ .Artist.FormedAt }}</h2>
+	<h2>{{ .Artist.Genre }}</h2>
+	<p>{{ .Artist.Biography }}</p>
+	</div>
+</div>
 
-
+<div class="table">
 {{ range .Albums}}
 <div class="table-elem">
 	<a href="/app/album/{{ .ID }}"> <img src="{{.ImgUrl }}"> {{.Name}} </a>
-
 </div>
 {{end}}
+</div>
 
 {{ end }}

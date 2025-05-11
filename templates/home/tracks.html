@@ -12,15 +12,11 @@
 		<a href="/app/home/tracks" class="selected">
 			Tracks
 		</a>
-		<a href="/app/home">
-			Users
-		</a>
 	</div>
 	<div class="table">
 		{{ range .Tracks}}
 		<div class="table-elem">
-			<img src="{{.ImgUrl }}">
-			<a class="name" href="/app/track/{{ .ID }}"> {{ .Name }}</a>
+			<a class="name" href="/app/track/{{ .ID }}"> <img src="{{.ImgUrl }}"> {{ .Name }}</a>
 		</div>
 		{{end}}
 	</div>

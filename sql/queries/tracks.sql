@@ -13,8 +13,9 @@ values (
 returning *;
 
 -- name: GetTrack :one
-select *
+select tracks.*, albums.img_url
 from tracks
+join albums on albums.id = tracks.album_id
 where tracks.id = $1;
 
 

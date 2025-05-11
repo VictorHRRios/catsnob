@@ -1,31 +1,38 @@
-{{ define "title" }}Album {{ end }}
+{{ define "title" }} {{.Album.Name}} {{ end }}
 
 {{ define "content" }}
-<h1>{{.Album.Name}}</h1>
-<img src="{{.Album.ImgUrl}}"></img>
 
-{{ if .User }}
-<form action="/app/createAlbumReview" method="post">
-	<input type="hidden" name="albumid" value="{{.Album.ID}}">
-	<label for="rating">Rate this item:</label>
-	<select name="rating" id="rating" required>
-		<option value="">Select a rating</option>
-		<option value="0.5">0.5</option>
-		<option value="1.0">1.0</option>
-		<option value="1.5">1.5</option>
-		<option value="2.0">2.0</option>
-		<option value="2.5">2.5</option>
-		<option value="3.0">3.0</option>
-		<option value="3.5">3.5</option>
-		<option value="4.0">4.0</option>
-		<option value="4.5">4.5</option>
-		<option value="5.0">5.0</option>
-	</select>
-	<button type="submit">Submit</button>
-</form>
-{{ else }}
-Rate it
-{{ end }}
+<div class="music-profile">
+<div>
+	<a href="/app/artist/{{.Album.ArtistID}}">Go to Artist!</a> <!-- Aqui seria mejor poner el nombre del artista pero se tiene que modificar el join -->
+	<h1>{{.Album.Name}}</h1>
+	<img src="{{.Album.ImgUrl}}"></img>
+
+	{{ if .User }}
+	<form action="/app/createAlbumReview" method="post">
+		<input type="hidden" name="albumid" value="{{.Album.ID}}">
+		<label for="rating">Rate this item:</label>
+		<select name="rating" id="rating" required>
+			<option value="">Select a rating</option>
+			<option value="0.5">0.5</option>
+			<option value="1.0">1.0</option>
+			<option value="1.5">1.5</option>
+			<option value="2.0">2.0</option>
+			<option value="2.5">2.5</option>
+			<option value="3.0">3.0</option>
+			<option value="3.5">3.5</option>
+			<option value="4.0">4.0</option>
+			<option value="4.5">4.5</option>
+			<option value="5.0">5.0</option>
+		</select>
+		<button type="submit">Submit</button>
+	</form>
+	{{ else }}
+	<p><a href="/app/login">Log in!</a> to rate it</p>
+	{{ end }}
+</div>
+
+<div>
 
 {{ range .Tracks}}
 <div class="table-elem">
@@ -33,5 +40,7 @@ Rate it
 
 </div>
 {{end}}
+</div>
+</div>
 
 {{ end }}
