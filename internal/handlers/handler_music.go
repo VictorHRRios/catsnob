@@ -18,6 +18,7 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 		Artist     database.Artist
 		Albums     []database.GetArtistAlbumsRow
 		User       *database.User
+		Bio        string
 	}
 	tmplPath := filepath.Join("templates", "music", "artist.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
@@ -55,6 +56,7 @@ func (cfg *ApiConfig) HandlerArtistProfile(w http.ResponseWriter, r *http.Reques
 		Artist: artist,
 		Albums: artistAlbums,
 		User:   u,
+		Bio:    artist.Biography.String,
 	}
 
 	if err = tmpl.Execute(w, returnBody); err != nil {
