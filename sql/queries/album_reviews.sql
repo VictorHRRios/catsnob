@@ -27,7 +27,9 @@ values (
 returning *;
 
 -- name: GetReviewByUser :many
-select * from album_reviews
+select album_reviews.*, albums.id, albums.name, albums.img_url
+from album_reviews
+join albums on albums.id = album_reviews.album_id
 where user_id = $1;
 
 -- name: GetReviewByAlbum :many

@@ -67,8 +67,12 @@ div.table {
   width: 100%;
 }
 
-img.profile-img {
+nav .profile-img {
   width: 5rem;
+}
+
+.profile-img {
+  width: 15rem;
 }
 
 .music-profile {
@@ -90,3 +94,15 @@ img.profile-img {
   margin: 16px 0;
   font-weight: bold;
 }
+
+.reviews {
+  padding: 0 1rem 1rem 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.reviews img {
+  width: 5rem;
+}
+
+

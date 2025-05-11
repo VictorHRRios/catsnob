@@ -3,6 +3,18 @@
 {{ define "content" }}
 
 <h1>{{ .Name }}</h1>
-<img src="{{ .Img }}">
-
+<img class="profile-img" src="{{ .Img }}">
+<h2> Reviews </h2>
+<div class="reviews"> 
+	<p> Album Image </p>
+	<p> Album Name </p>
+	<p> Score </p>
+	<p> Actions </p>
+	{{ range .Reviews}}
+	<a href="/app/album/{{ .AlbumID }}"><img src="{{ .ImgUrl }}"></a>
+	<p>{{ .Name }}</p>
+	<p>{{ .Score }}</p>
+	<div> View / Edit / Delete</div>
+	{{ end }}
+</div>
 {{ end }}

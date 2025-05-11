@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -132,19 +133,35 @@ func (q *Queries) GetReviewByAlbum(ctx context.Context, albumID uuid.UUID) ([]Al
 }
 
 const getReviewByUser = `-- name: GetReviewByUser :many
-select id, created_at, updated_at, user_id, album_id, title, review, score from album_reviews
+select album_reviews.id, album_reviews.created_at, album_reviews.updated_at, album_reviews.user_id, album_reviews.album_id, album_reviews.title, album_reviews.review, album_reviews.score, albums.id, albums.name, albums.img_url
+from album_reviews
+join albums on albums.id = album_reviews.album_id
 where user_id = $1
 `
 
-func (q *Queries) GetReviewByUser(ctx context.Context, userID uuid.UUID) ([]AlbumReview, error) {
+type GetReviewByUserRow struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	AlbumID   uuid.UUID
+	Title     sql.NullString
+	Review    sql.NullString
+	Score     string
+	ID_2      uuid.UUID
+	Name      string
+	ImgUrl    string
+}
+
+func (q *Queries) GetReviewByUser(ctx context.Context, userID uuid.UUID) ([]GetReviewByUserRow, error) {
 	rows, err := q.db.QueryContext(ctx, getReviewByUser, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []AlbumReview
+	var items []GetReviewByUserRow
 	for rows.Next() {
-		var i AlbumReview
+		var i GetReviewByUserRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CreatedAt,
@@ -154,6 +171,9 @@ func (q *Queries) GetReviewByUser(ctx context.Context, userID uuid.UUID) ([]Albu
 			&i.Title,
 			&i.Review,
 			&i.Score,
+			&i.ID_2,
+			&i.Name,
+			&i.ImgUrl,
 		); err != nil {
 			return nil, err
 		}

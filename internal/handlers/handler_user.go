@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -176,10 +177,12 @@ func (cfg *ApiConfig) HandlerUserProfile(w http.ResponseWriter, r *http.Request,
 		Name       string
 		Img        string
 		User       *database.User
+		Reviews    []database.GetReviewByUserRow
 	}
 	tmplPath := filepath.Join("templates", "user", "profile.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
+		log.Print(err)
 		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
@@ -195,10 +198,13 @@ func (cfg *ApiConfig) HandlerUserProfile(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
+	reviews, err := cfg.Queries.GetReviewByUser(context.Background(), user.ID)
+
 	returnBody := returnVals{
-		Name: user.Name,
-		Img:  user.ImgUrl,
-		User: u,
+		Name:    user.Name,
+		Img:     user.ImgUrl,
+		User:    u,
+		Reviews: reviews,
 	}
 
 	if err := tmpl.Execute(w, returnBody); err != nil {
