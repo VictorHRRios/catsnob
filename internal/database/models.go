@@ -16,7 +16,6 @@ type Album struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Name      string
-	NameSlug  string
 	Genre     string
 	ImgUrl    string
 	ArtistID  uuid.UUID
@@ -39,7 +38,6 @@ type Artist struct {
 	UpdatedAt time.Time
 	FormedAt  string
 	Name      string
-	NameSlug  string
 	Biography sql.NullString
 	Genre     string
 	ImgUrl    string
@@ -58,7 +56,6 @@ type Track struct {
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 	Name             string
-	NameSlug         string
 	Duration         int32
 	AlbumTrackNumber int32
 	ArtistID         uuid.UUID

@@ -1,5 +1,5 @@
 -- name: CreateArtist :one
-insert into artists (id, created_at, updated_at, formed_at, name, name_slug, biography, genre, img_url)
+insert into artists (id, created_at, updated_at, formed_at, name, biography, genre, img_url)
 values (
 	gen_random_uuid(),
 	NOW(),
@@ -8,8 +8,7 @@ values (
 	$2,
 	$3,
 	$4,
-	$5,
-	$6
+	$5
 )
 returning *;
 

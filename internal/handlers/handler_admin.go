@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/VictorHRRios/catsnob/internal/api"
 	"github.com/VictorHRRios/catsnob/internal/database"
@@ -144,10 +143,8 @@ func (cfg *ApiConfig) handlerCreateArtistAlbums(artistId string, artistDBId uuid
 		return database.Artist{}, err
 	}
 	for _, album := range retrAlbums.Album {
-		nameSlug := strings.ReplaceAll(strings.ToLower(album.StrAlbum), " ", "_")
 		albumDB, err := cfg.Queries.CreateAlbum(context.Background(), database.CreateAlbumParams{
 			Name:     album.StrAlbum,
-			NameSlug: nameSlug,
 			Genre:    album.StrGenre,
 			ImgUrl:   album.StrAlbumThumb,
 			ArtistID: artistDBId,
@@ -171,7 +168,6 @@ func (cfg *ApiConfig) handlerCreateAlbumTracks(albumId string, albumDBId uuid.UU
 		return database.Track{}, err
 	}
 	for _, track := range retrAlbumTracks.Track {
-		nameSlug := strings.ReplaceAll(strings.ToLower(track.StrTrack), " ", "_")
 		trackDuration, err := strconv.Atoi(track.IntDuration)
 		if err != nil {
 			return database.Track{}, err
@@ -182,7 +178,6 @@ func (cfg *ApiConfig) handlerCreateAlbumTracks(albumId string, albumDBId uuid.UU
 		}
 		_, err = cfg.Queries.CreateAlbumTracks(context.Background(), database.CreateAlbumTracksParams{
 			Name:             track.StrTrack,
-			NameSlug:         nameSlug,
 			Duration:         int32(trackDuration),
 			AlbumTrackNumber: int32(trackNumber),
 			ArtistID:         artistDBId,

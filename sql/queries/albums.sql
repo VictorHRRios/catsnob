@@ -1,5 +1,5 @@
 -- name: CreateAlbum :one
-insert into albums (id, created_at, updated_at, name, name_slug, genre, img_url, artist_id)
+insert into albums (id, created_at, updated_at, name, genre, img_url, artist_id)
 values (
 	gen_random_uuid(),
 	NOW(),
@@ -7,8 +7,7 @@ values (
 	$1,
 	$2,
 	$3,
-	$4,
-	$5
+	$4
 )
 returning *;
 

@@ -12,7 +12,7 @@ import (
 )
 
 const createAlbum = `-- name: CreateAlbum :one
-insert into albums (id, created_at, updated_at, name, name_slug, genre, img_url, artist_id)
+insert into albums (id, created_at, updated_at, name, genre, img_url, artist_id)
 values (
 	gen_random_uuid(),
 	NOW(),
@@ -20,15 +20,13 @@ values (
 	$1,
 	$2,
 	$3,
-	$4,
-	$5
+	$4
 )
-returning id, created_at, updated_at, name, name_slug, genre, img_url, artist_id
+returning id, created_at, updated_at, name, genre, img_url, artist_id
 `
 
 type CreateAlbumParams struct {
 	Name     string
-	NameSlug string
 	Genre    string
 	ImgUrl   string
 	ArtistID uuid.UUID
@@ -37,7 +35,6 @@ type CreateAlbumParams struct {
 func (q *Queries) CreateAlbum(ctx context.Context, arg CreateAlbumParams) (Album, error) {
 	row := q.db.QueryRowContext(ctx, createAlbum,
 		arg.Name,
-		arg.NameSlug,
 		arg.Genre,
 		arg.ImgUrl,
 		arg.ArtistID,
@@ -48,7 +45,6 @@ func (q *Queries) CreateAlbum(ctx context.Context, arg CreateAlbumParams) (Album
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Name,
-		&i.NameSlug,
 		&i.Genre,
 		&i.ImgUrl,
 		&i.ArtistID,
@@ -57,7 +53,7 @@ func (q *Queries) CreateAlbum(ctx context.Context, arg CreateAlbumParams) (Album
 }
 
 const getAlbum = `-- name: GetAlbum :one
-select id, created_at, updated_at, name, name_slug, genre, img_url, artist_id from albums where id = $1
+select id, created_at, updated_at, name, genre, img_url, artist_id from albums where id = $1
 `
 
 func (q *Queries) GetAlbum(ctx context.Context, id uuid.UUID) (Album, error) {
@@ -68,7 +64,6 @@ func (q *Queries) GetAlbum(ctx context.Context, id uuid.UUID) (Album, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Name,
-		&i.NameSlug,
 		&i.Genre,
 		&i.ImgUrl,
 		&i.ArtistID,

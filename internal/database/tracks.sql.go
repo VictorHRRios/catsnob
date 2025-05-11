@@ -7,13 +7,12 @@ package database
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 )
 
 const createAlbumTracks = `-- name: CreateAlbumTracks :one
-insert into tracks (id, created_at, updated_at, name, name_slug, duration, album_track_number, artist_id, album_id)
+insert into tracks (id, created_at, updated_at, name, duration, album_track_number, artist_id, album_id)
 values (
 	gen_random_uuid(),
 	NOW(),
@@ -22,15 +21,13 @@ values (
 	$2,
 	$3,
 	$4,
-	$5,
-	$6
+	$5
 )
-returning id, created_at, updated_at, name, name_slug, duration, album_track_number, artist_id, album_id
+returning id, created_at, updated_at, name, duration, album_track_number, artist_id, album_id
 `
 
 type CreateAlbumTracksParams struct {
 	Name             string
-	NameSlug         string
 	Duration         int32
 	AlbumTrackNumber int32
 	ArtistID         uuid.UUID
@@ -40,7 +37,6 @@ type CreateAlbumTracksParams struct {
 func (q *Queries) CreateAlbumTracks(ctx context.Context, arg CreateAlbumTracksParams) (Track, error) {
 	row := q.db.QueryRowContext(ctx, createAlbumTracks,
 		arg.Name,
-		arg.NameSlug,
 		arg.Duration,
 		arg.AlbumTrackNumber,
 		arg.ArtistID,
@@ -52,7 +48,6 @@ func (q *Queries) CreateAlbumTracks(ctx context.Context, arg CreateAlbumTracksPa
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Name,
-		&i.NameSlug,
 		&i.Duration,
 		&i.AlbumTrackNumber,
 		&i.ArtistID,
@@ -63,9 +58,9 @@ func (q *Queries) CreateAlbumTracks(ctx context.Context, arg CreateAlbumTracksPa
 
 const getTop12Tracks = `-- name: GetTop12Tracks :many
 select distinct on (albums.name)
-	tracks.id, tracks.name, tracks.name_slug, tracks.duration,
-	albums.name as album_name, albums.name_slug as album_name_slug, albums.img_url as img_url,
-	artists.name as artist_name, artists.name_slug as artist_name_slug
+	tracks.id, tracks.name, tracks.duration,
+	albums.name as album_name, albums.img_url as img_url,
+	artists.name as artist_name
 from tracks
 join albums on albums.id = tracks.album_id
 join artists on artists.id = albums.artist_id
@@ -73,15 +68,12 @@ limit 12
 `
 
 type GetTop12TracksRow struct {
-	ID             uuid.UUID
-	Name           string
-	NameSlug       string
-	Duration       int32
-	AlbumName      string
-	AlbumNameSlug  string
-	ImgUrl         string
-	ArtistName     string
-	ArtistNameSlug string
+	ID         uuid.UUID
+	Name       string
+	Duration   int32
+	AlbumName  string
+	ImgUrl     string
+	ArtistName string
 }
 
 func (q *Queries) GetTop12Tracks(ctx context.Context) ([]GetTop12TracksRow, error) {
@@ -96,13 +88,10 @@ func (q *Queries) GetTop12Tracks(ctx context.Context) ([]GetTop12TracksRow, erro
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.NameSlug,
 			&i.Duration,
 			&i.AlbumName,
-			&i.AlbumNameSlug,
 			&i.ImgUrl,
 			&i.ArtistName,
-			&i.ArtistNameSlug,
 		); err != nil {
 			return nil, err
 		}
@@ -118,45 +107,23 @@ func (q *Queries) GetTop12Tracks(ctx context.Context) ([]GetTop12TracksRow, erro
 }
 
 const getTrack = `-- name: GetTrack :one
-select
-	tracks.id, tracks.created_at, tracks.updated_at, tracks.name, tracks.name_slug, tracks.duration, tracks.album_track_number, tracks.artist_id, tracks.album_id,
-	albums.name_slug as album_name,
-	artists.name_slug as artist_name
+select id, created_at, updated_at, name, duration, album_track_number, artist_id, album_id
 from tracks
-join albums on albums.id = tracks.album_id
-join artists on artists.id = albums.artist_id
 where tracks.id = $1
 `
 
-type GetTrackRow struct {
-	ID               uuid.UUID
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
-	Name             string
-	NameSlug         string
-	Duration         int32
-	AlbumTrackNumber int32
-	ArtistID         uuid.UUID
-	AlbumID          uuid.UUID
-	AlbumName        string
-	ArtistName       string
-}
-
-func (q *Queries) GetTrack(ctx context.Context, id uuid.UUID) (GetTrackRow, error) {
+func (q *Queries) GetTrack(ctx context.Context, id uuid.UUID) (Track, error) {
 	row := q.db.QueryRowContext(ctx, getTrack, id)
-	var i GetTrackRow
+	var i Track
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Name,
-		&i.NameSlug,
 		&i.Duration,
 		&i.AlbumTrackNumber,
 		&i.ArtistID,
 		&i.AlbumID,
-		&i.AlbumName,
-		&i.ArtistName,
 	)
 	return i, err
 }
