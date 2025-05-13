@@ -59,6 +59,7 @@ func main() {
 	mux.HandleFunc("GET /admin", apiCfg.AuthMiddleware(apiCfg.HandlerAdminIndex))
 
 	mux.HandleFunc("POST /app/createAlbumReview", apiCfg.AuthMiddleware(apiCfg.HandlerCreateAlbumReview))
+	mux.HandleFunc("DELETE /app/deleteAlbumReview", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteAlbumReview))
 	mux.HandleFunc("POST /app/join", apiCfg.HandlerCreateUser)
 	mux.HandleFunc("POST /app/login", apiCfg.HandlerAuthUser)
 	mux.HandleFunc("POST /app/logout", apiCfg.HandlerLogout)

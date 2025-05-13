@@ -5,7 +5,7 @@
 <h1>{{ .ProfileUser.Name }}</h1>
 <img class="profile-img" src="{{ .ProfileUser.ImgUrl }}">
 <h2> Reviews </h2>
-<div class="reviews"> 
+<div class="reviews">
 	<p> Album Image </p>
 	<p> Album Name </p>
 	<p> Score </p>
@@ -14,7 +14,11 @@
 	<a href="/app/album/{{ .AlbumID }}"><img src="{{ .ImgUrl }}"></a>
 	<p>{{ .Name }}</p>
 	<p>{{ .Score }}</p>
-	<div> <a href="/app/user/{{ $.ProfileUser.Name }}/review/{{ .ID}}">View</a></div>
+	<div>
+		<a href="/app/user/{{ $.ProfileUser.Name }}/review/{{ .ID}}">View</a>
+		<button onclick="deleteReview('{{ .ID }}')">Delete!</button>
+	</div>
 	{{ end }}
+	<script src="/app/assets/jscript/reviews.js"></script>
 </div>
 {{ end }}

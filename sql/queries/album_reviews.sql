@@ -42,3 +42,7 @@ from album_reviews
 join albums on albums.id = album_reviews.album_id
 join users on users.id = album_reviews.user_id
 where album_reviews.id = $1;
+
+-- name: DeleteReview :exec
+delete from album_reviews
+where album_reviews.id = $1;

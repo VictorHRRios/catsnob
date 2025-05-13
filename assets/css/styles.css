@@ -95,7 +95,7 @@ nav .profile-img {
   font-weight: bold;
 }
 
-.reviews {
+.reviews, .id {
   padding: 0 1rem 1rem 1rem;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;

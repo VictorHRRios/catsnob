@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"path/filepath"
 
@@ -58,6 +60,57 @@ func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Re
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/app/album/%v", albumID), http.StatusFound)
+}
+
+func (cfg *ApiConfig) HandlerDeleteAlbumReview(w http.ResponseWriter, r *http.Request, u *database.User) {
+	type returnVals struct {
+		Error      string
+		Stylesheet *string
+		User       *database.User
+	}
+
+	type DeleteRequest struct {
+		ID string `json:"reviewId"`
+	}
+
+	tmplPath := filepath.Join("templates", "user", "profile.html")
+	tmpl, err := template.ParseFiles(layout, tmplPath)
+	if err != nil {
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
+		return
+	}
+
+	var req DeleteRequest
+
+	err = json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	reviewID, err := uuid.Parse(req.ID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Print(err)
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error: %v", err)}); err != nil {
+			log.Print(err)
+			http.Error(w, "error parsing files", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	err = cfg.Queries.DeleteReview(context.Background(), reviewID)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
+			http.Error(w, "error parsing files", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+	http.Redirect(w, r, fmt.Sprintf("/app/user/%v", u.ID), http.StatusFound)
 }
 
 func (cfg *ApiConfig) HandlerUserReview(w http.ResponseWriter, r *http.Request, u *database.User) {

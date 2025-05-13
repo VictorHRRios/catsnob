@@ -95,6 +95,16 @@ func (q *Queries) CreateReviewShort(ctx context.Context, arg CreateReviewShortPa
 	return i, err
 }
 
+const deleteReview = `-- name: DeleteReview :exec
+delete from album_reviews
+where album_reviews.id = $1
+`
+
+func (q *Queries) DeleteReview(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteReview, id)
+	return err
+}
+
 const getReview = `-- name: GetReview :one
 select album_reviews.id, album_reviews.created_at, album_reviews.updated_at, album_reviews.user_id, album_reviews.album_id, album_reviews.title, album_reviews.review, album_reviews.score, albums.id as album_id, albums.name as album_name, albums.img_url as album_img, users.name as username
 from album_reviews
