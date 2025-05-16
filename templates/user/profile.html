@@ -3,7 +3,7 @@
 {{ define "content" }}
 
 <h1>{{ .ProfileUser.Name }}</h1>
-<img class="profile-img" src="{{ .ProfileUser.ImgUrl }}">
+<img class="profile-img" src="{{ .ProfileUser.ImgUrl }}" alt="Profile Image">
 <h2> Reviews </h2>
 <div class="reviews">
 	<p> Album Image </p>
@@ -11,7 +11,7 @@
 	<p> Score </p>
 	<p> Actions </p>
 	{{ range .Reviews}}
-	<a href="/app/album/{{ .AlbumID }}"><img src="{{ .ImgUrl }}"></a>
+	<a href="/app/album/{{ .AlbumID }}"><img src="{{ .ImgUrl }}" alt=" image" ></a>
 	<p>{{ .Name }}</p>
 	<p>{{ .Score }}</p>
 	<div>

@@ -6,7 +6,7 @@
 <div>
 	<a href="/app/artist/{{.Album.ArtistID}}">Go to Artist!</a> <!-- Aqui seria mejor poner el nombre del artista pero se tiene que modificar el join -->
 	<h1>{{.Album.Name}}</h1>
-	<img src="{{.Album.ImgUrl}}"></img>
+	<img src="{{.Album.ImgUrl}}" alt="album image"></img>
 
 	{{ if .User }}
 	<form action="/app/createAlbumReview" method="post">
