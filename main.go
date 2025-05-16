@@ -44,6 +44,9 @@ func main() {
 		http.Redirect(w, r, "/app/home", http.StatusSeeOther)
 	})
 
+	mux.HandleFunc("/we_are", handleWeAre)
+	mux.HandleFunc("/this_is", handleThisIs)
+
 	mux.HandleFunc("GET /app/home", apiCfg.AuthMiddleware(apiCfg.HandlerIndex))
 	mux.HandleFunc("GET /app/home/albums", apiCfg.AuthMiddleware(apiCfg.HandlerAlbums))
 	mux.HandleFunc("GET /app/home/tracks", apiCfg.AuthMiddleware(apiCfg.HandlerTracks))

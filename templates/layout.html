@@ -9,19 +9,22 @@
 	{{ else }}
 	<link rel="stylesheet" href="/app/assets/css/styles.css">
 	{{ end }}
+	<link rel="icon" href="/app/assets/images/apple.png" type="image-icon">
 	<title>{{ block "title" . }}CATSNOB{{ end }}</title>
 </head>
 
 <body>
 	<header>
 		<nav>
-			<a href="/app/home" class="nav">LOGO</a>
+			<img class="logo" src="/app/assets/images/apple.png" alt="Logo" href="/app/home">
 			<a href="/app/home" class="nav">CATSNOB</a>
+			<a href="/this_is" class="nav">about us</a>
 			<div>
 				{{ if .User }}
-				<img class="profile-img" src="{{ .User.ImgUrl }}">
+				<img class="profile-img" src="{{ .User.ImgUrl }}" alt="Profile Image">
 				<a href="/app/user/{{.User.Name}}" class="nav"> {{ .User.Name }}</a>
-				<form action="/app/logout" method="POST" style="display: inline;">
+
+				<form action="/app/logout" method="POST">
 					<button type="submit">Logout</button>
 				</form>
 				{{ else }}
@@ -40,7 +43,10 @@
 	<main>
 		{{ block "content" . }}{{ end }}
 	</main>
-	<footer>Page made by: </footer>
+	<footer> 
+		<a href="/we_are" class="footer">MarLenViS Studio</a>
+		<img class="footer" src="/app/assets/images/team.png" alt="footer" href="/we_are"></footer>
+
 </body>
 
 </html>
