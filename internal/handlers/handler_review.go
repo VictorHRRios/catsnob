@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -63,54 +64,56 @@ func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Re
 }
 
 func (cfg *ApiConfig) HandlerDeleteAlbumReview(w http.ResponseWriter, r *http.Request, u *database.User) {
-	type returnVals struct {
-		Error      string
-		Stylesheet *string
-		User       *database.User
-	}
-
 	type DeleteRequest struct {
-		ID string `json:"reviewId"`
+		ID uuid.UUID `json:"reviewId"`
 	}
-
-	tmplPath := filepath.Join("templates", "user", "profile.html")
-	tmpl, err := template.ParseFiles(layout, tmplPath)
-	if err != nil {
-		http.Error(w, "error parsing files", http.StatusInternalServerError)
-		return
-	}
-
 	var req DeleteRequest
 
-	err = json.NewDecoder(r.Body).Decode(&req)
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 
-	reviewID, err := uuid.Parse(req.ID)
+	err = cfg.Queries.DeleteReview(context.Background(), req.ID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Print(err)
-		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error: %v", err)}); err != nil {
-			log.Print(err)
-			http.Error(w, "error parsing files", http.StatusInternalServerError)
-			return
-		}
+		http.Error(w, "Could not delete request", http.StatusBadRequest)
 		return
 	}
 
-	err = cfg.Queries.DeleteReview(context.Background(), reviewID)
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"status":"success"}`))
+}
 
+func (cfg *ApiConfig) HandlerUpdateAlbumReview(w http.ResponseWriter, r *http.Request, u *database.User) {
+	type UpdateRequest struct {
+		ID      uuid.UUID `json:"id"`
+		Title   string    `json:"title"`
+		Content string    `json:"content"`
+		Score   string    `json:"rating"`
+	}
+	var req UpdateRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	log.Print(req)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
-			http.Error(w, "error parsing files", http.StatusInternalServerError)
-			return
-		}
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-	http.Redirect(w, r, fmt.Sprintf("/app/user/%v", u.ID), http.StatusFound)
+
+	err = cfg.Queries.UpdateReview(context.Background(), database.UpdateReviewParams{
+		Title:  sql.NullString{String: req.Title, Valid: true},
+		Review: sql.NullString{String: req.Content, Valid: true},
+		Score:  req.Score,
+		ID:     req.ID,
+	})
+	if err != nil {
+		http.Error(w, "Could not update request", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"status":"success"}`))
 }
 
 func (cfg *ApiConfig) HandlerUserReview(w http.ResponseWriter, r *http.Request, u *database.User) {

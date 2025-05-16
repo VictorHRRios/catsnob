@@ -240,3 +240,30 @@ func (q *Queries) GetReviewByUser(ctx context.Context, userID uuid.UUID) ([]GetR
 	}
 	return items, nil
 }
+
+const updateReview = `-- name: UpdateReview :exec
+update album_reviews
+set 
+title = $1,
+review = $2,
+score = $3
+where 
+id = $4
+`
+
+type UpdateReviewParams struct {
+	Title  sql.NullString
+	Review sql.NullString
+	Score  string
+	ID     uuid.UUID
+}
+
+func (q *Queries) UpdateReview(ctx context.Context, arg UpdateReviewParams) error {
+	_, err := q.db.ExecContext(ctx, updateReview,
+		arg.Title,
+		arg.Review,
+		arg.Score,
+		arg.ID,
+	)
+	return err
+}

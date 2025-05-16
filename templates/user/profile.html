@@ -17,8 +17,32 @@
 	<div>
 		<a href="/app/user/{{ $.ProfileUser.Name }}/review/{{ .ID}}">View</a>
 		<button onclick="deleteReview('{{ .ID }}')">Delete!</button>
+		<button onclick="showDialog('{{ .ID }}')">Update!</button>
 	</div>
 	{{ end }}
 	<script src="/app/assets/jscript/reviews.js"></script>
+</div>
+
+<div id="updateDialog"
+	style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; box-shadow:0 0 10px rgba(0,0,0,0.2); border-radius:8px;">
+	<h3>Update Review</h3>
+	<input id="title" type="text" placeholder="Title"><br><br>
+	<textarea id="content" placeholder="Content"></textarea><br><br>
+	<label for="rating">Rate this item:</label>
+	<select name="rating" id="rating" required>
+		<option value="">Select a rating</option>
+		<option value="0.5">0.5</option>
+		<option value="1.0">1.0</option>
+		<option value="1.5">1.5</option>
+		<option value="2.0">2.0</option>
+		<option value="2.5">2.5</option>
+		<option value="3.0">3.0</option>
+		<option value="3.5">3.5</option>
+		<option value="4.0">4.0</option>
+		<option value="4.5">4.5</option>
+		<option value="5.0">5.0</option>
+	</select>
+	<button onclick="submitUpdate()">Submit</button>
+	<button onclick="closeDialog()">Cancel</button>
 </div>
 {{ end }}

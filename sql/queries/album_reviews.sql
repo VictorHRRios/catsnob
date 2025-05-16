@@ -46,3 +46,13 @@ where album_reviews.id = $1;
 -- name: DeleteReview :exec
 delete from album_reviews
 where album_reviews.id = $1;
+
+-- name: UpdateReview :exec
+update album_reviews
+set 
+title = $1,
+review = $2,
+score = $3
+where 
+id = $4;
+
