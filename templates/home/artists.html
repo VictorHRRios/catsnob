@@ -16,7 +16,7 @@
 	<div class="table">
 		{{ range .Artists}}
 		<div class="table-elem">
-			<a class="name" href="/app/artist/{{ .ID }}"> <img src="{{.ImgUrl }}"> {{ .Name }}</a>
+			<a class="name" href="/app/artist/{{ .ID }}"> <img src="{{.ImgUrl }}" alt=" Artist Image"> {{ .Name }}</a>
 			
 		</div>
 		{{end}}

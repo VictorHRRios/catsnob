@@ -4,7 +4,7 @@
 
 <div class="music-profile">
 	<div>
-		<img src="{{ .Artist.ImgUrl }}">
+		<img src="{{ .Artist.ImgUrl }}" alt="artist image">
 		<h1>{{ .Artist.Name }}</h1>
 	</div>
 	<div>
@@ -17,7 +17,7 @@
 <div class="table">
 {{ range .Albums}}
 <div class="table-elem">
-	<a href="/app/album/{{ .ID }}"> <img src="{{.ImgUrl }}"> {{.Name}} </a>
+	<a href="/app/album/{{ .ID }}"> <img src="{{.ImgUrl }}" alt= ""> {{.Name}} </a>
 </div>
 {{end}}
 </div>
