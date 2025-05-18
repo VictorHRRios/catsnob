@@ -241,6 +241,32 @@ func (q *Queries) GetReviewByUser(ctx context.Context, userID uuid.UUID) ([]GetR
 	return items, nil
 }
 
+const getReviewByUserAlbum = `-- name: GetReviewByUserAlbum :one
+select id, created_at, updated_at, user_id, album_id, title, review, score from album_reviews
+where album_id = $1 and user_id = $2
+`
+
+type GetReviewByUserAlbumParams struct {
+	AlbumID uuid.UUID
+	UserID  uuid.UUID
+}
+
+func (q *Queries) GetReviewByUserAlbum(ctx context.Context, arg GetReviewByUserAlbumParams) (AlbumReview, error) {
+	row := q.db.QueryRowContext(ctx, getReviewByUserAlbum, arg.AlbumID, arg.UserID)
+	var i AlbumReview
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserID,
+		&i.AlbumID,
+		&i.Title,
+		&i.Review,
+		&i.Score,
+	)
+	return i, err
+}
+
 const updateReview = `-- name: UpdateReview :exec
 update album_reviews
 set 

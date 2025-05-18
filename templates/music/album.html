@@ -9,6 +9,12 @@
 	<img src="{{.Album.ImgUrl}}" alt="album image"></img>
 
 	{{ if .User }}
+
+	{{ if .UserReview }}
+	You already have a review of this album!
+		
+	{{ else }}
+
 	<form action="/app/createAlbumReview" method="post">
 		<input type="hidden" name="albumid" value="{{.Album.ID}}">
 		<label for="rating">Rate this item:</label>
@@ -27,12 +33,14 @@
 		</select>
 		<button type="submit">Submit</button>
 	</form>
+	{{ end }}
 	{{ else }}
 	<p><a href="/app/login">Log in!</a> to rate it</p>
 	{{ end }}
 </div>
 
 <div>
+
 
 {{ range .Tracks}}
 <div class="table-elem">

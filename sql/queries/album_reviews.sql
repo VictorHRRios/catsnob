@@ -26,6 +26,10 @@ values (
 )
 returning *;
 
+-- name: GetReviewByUserAlbum :one
+select * from album_reviews
+where album_id = $1 and user_id = $2;
+
 -- name: GetReviewByUser :many
 select album_reviews.*, albums.id, albums.name, albums.img_url
 from album_reviews
