@@ -16,5 +16,13 @@ returning *;
 select * from artists
 where id = $1;
 
+-- name: DeleteArtist :exec
+delete from artists
+where artists.id = $1;
+
+
+-- name: GetArtists :many
+select * from artists;
+
 -- name: GetTop12Artists :many
 select * from artists limit 12;

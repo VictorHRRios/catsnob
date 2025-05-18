@@ -18,7 +18,7 @@
 		<nav>
 			<img class="logo" src="/app/assets/images/apple.png" alt="Logo" href="/app/home">
 			<a href="/app/home" class="nav">CATSNOB</a>
-			<a href="/this_is" class="nav">about us</a>
+			<a href="/app/this_is" class="nav">about us</a>
 			<div>
 				{{ if .User }}
 				<img class="profile-img" src="{{ .User.ImgUrl }}" alt="Profile Image">
@@ -44,7 +44,7 @@
 		{{ block "content" . }}{{ end }}
 	</main>
 	<footer> 
-		<a href="/we_are" class="footer">MarLenViS Studio</a>
+		<a href="/app/we_are" class="footer">MarLenViS Studio</a>
 		<img class="footer" src="/app/assets/images/team.png" alt="footer" href="/we_are"></footer>
 
 </body>

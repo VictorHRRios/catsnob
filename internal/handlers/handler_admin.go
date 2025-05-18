@@ -3,6 +3,8 @@ package handlers
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 	"path/filepath"
@@ -18,6 +20,7 @@ func (cfg *ApiConfig) HandlerAdminIndex(w http.ResponseWriter, r *http.Request, 
 		Error      string
 		Stylesheet *string
 		User       *database.User
+		Artists    []database.Artist
 	}
 	tmplPath := filepath.Join("templates", "admin", "index.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
@@ -33,13 +36,44 @@ func (cfg *ApiConfig) HandlerAdminIndex(w http.ResponseWriter, r *http.Request, 
 		}
 		return
 	}
-	returnBody := returnVals{
-		User: u,
+
+	artists, err := cfg.Queries.GetArtists(context.Background())
+	if err != nil {
+		http.Error(w, "Error Retrieving Albums", http.StatusInternalServerError)
+		return
 	}
+
+	returnBody := returnVals{
+		User:    u,
+		Artists: artists,
+	}
+
 	if err := tmpl.Execute(w, returnBody); err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
+}
+
+func (cfg *ApiConfig) HandlerDeleteArtist(w http.ResponseWriter, r *http.Request, u *database.User) {
+	type DeleteRequest struct {
+		ID uuid.UUID `json:"albumId"`
+	}
+	var req DeleteRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	err = cfg.Queries.DeleteArtist(context.Background(), req.ID)
+	if err != nil {
+		http.Error(w, "Could not delete artist", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"status":"success"}`))
 }
 
 func (cfg *ApiConfig) HandlerFormArtistDisc(w http.ResponseWriter, r *http.Request, u *database.User) {
@@ -107,6 +141,10 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 		}
 		return
 	}
+	if retrArtist.Artists == nil {
+		tmpl.Execute(w, returnVals{Error: "No artist found in https://www.theaudiodb.com/"})
+		return
+	}
 	artist := retrArtist.Artists[0]
 
 	if artist.StrBiographyEN == nil {
@@ -124,14 +162,14 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: "Error creating artist"})
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error creating artist: %v", err)})
 		return
 	}
 
 	_, err = cfg.handlerCreateArtistAlbums(name, artistDB.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		tmpl.Execute(w, returnVals{Error: "Error creating album"})
+		tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error creating album: %v", err)})
 		return
 	}
 	http.Redirect(w, r, "/admin/createArtistDisc", http.StatusFound)

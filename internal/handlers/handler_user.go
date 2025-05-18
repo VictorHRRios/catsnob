@@ -20,7 +20,7 @@ func passwordChecker(s string) error {
 	return nil
 }
 
-func (cfg *ApiConfig) HandlerJoin(w http.ResponseWriter, r *http.Request) {
+func HandlerJoin(w http.ResponseWriter, r *http.Request) {
 	tmplPath := filepath.Join("templates", "user", "register.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
@@ -34,7 +34,7 @@ func (cfg *ApiConfig) HandlerJoin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (cfg *ApiConfig) HandlerLogin(w http.ResponseWriter, r *http.Request) {
+func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	tmplPath := filepath.Join("templates", "user", "login.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
