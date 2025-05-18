@@ -60,6 +60,11 @@ func (cfg *ApiConfig) HandlerDeleteArtist(w http.ResponseWriter, r *http.Request
 	}
 	var req DeleteRequest
 
+	if u == nil || !u.IsAdmin {
+		http.Error(w, "Access Denied", http.StatusForbidden)
+		return
+	}
+
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
@@ -97,7 +102,6 @@ func (cfg *ApiConfig) HandlerFormArtistDisc(w http.ResponseWriter, r *http.Reque
 		}
 		return
 	}
-
 	if !u.IsAdmin {
 		w.WriteHeader(http.StatusForbidden)
 		if err := tmpl.Execute(w, returnVals{Error: "Access denied for user"}); err != nil {
@@ -129,6 +133,12 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
+
+	if u == nil || !u.IsAdmin {
+		http.Error(w, "Access Denied", http.StatusForbidden)
+		return
+	}
+
 	var validArtistBio bool
 
 	name := r.FormValue("artist_id")
