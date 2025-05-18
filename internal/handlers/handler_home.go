@@ -35,9 +35,8 @@ func (cfg *ApiConfig) HandlerIndex(w http.ResponseWriter, r *http.Request, u *da
 		return
 	}
 	respBody := returnVals{
-		Stylesheet: nil,
-		Artists:    artists,
-		User:       u,
+		Artists: artists,
+		User:    u,
 	}
 
 	if err := tmpl.Execute(w, respBody); err != nil {

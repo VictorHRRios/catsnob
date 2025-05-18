@@ -155,7 +155,7 @@ func (cfg *ApiConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	}
 	_, err = cfg.Queries.CreateUser(context.Background(), database.CreateUserParams{
 		Name:           name,
-		ImgUrl:         "/app/assets/images/profile.jpg",
+		ImgUrl:         "/app/assets/images/profile.gif",
 		HashedPassword: hashedPassword,
 	})
 	if err != nil {

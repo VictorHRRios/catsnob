@@ -16,13 +16,15 @@
 <body>
 	<header>
 		<nav>
-			<img class="logo" src="/app/assets/images/apple.png" alt="Logo" href="/app/home">
+			<a href= "/app/home"><img class="logo" src="/app/assets/images/apple.png" alt="Logo"></a>
 			<a href="/app/home" class="nav">CATSNOB</a>
 			<a href="/app/this_is" class="nav">about us</a>
 			<div>
 				{{ if .User }}
-				<img class="profile-img" src="{{ .User.ImgUrl }}" alt="Profile Image">
-				<a href="/app/user/{{.User.Name}}" class="nav"> {{ .User.Name }}</a>
+				<a href="/app/user/{{.User.Name}}" class="nav"> 
+					<img class="profile-img" src="{{ .User.ImgUrl }}" alt="Profile Image">
+					{{ .User.Name }}
+				</a>
 
 				<form action="/app/logout" method="POST">
 					<button type="submit">Logout</button>
