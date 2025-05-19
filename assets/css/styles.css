@@ -180,6 +180,29 @@ nav .profile-img {
     align-items: center;
 }
 
+.member {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.member img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-right: 20px;
+}
+
+.info h3 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.info p {
+  margin: 5px 0 0 0;
+  color: #555;
+}
 
 
 
