@@ -26,6 +26,10 @@ values (
 )
 returning *;
 
+-- name: GetReviewByUserAlbum :one
+select * from album_reviews
+where album_id = $1 and user_id = $2;
+
 -- name: GetReviewByUser :many
 select album_reviews.*, albums.id, albums.name, albums.img_url
 from album_reviews
@@ -42,3 +46,17 @@ from album_reviews
 join albums on albums.id = album_reviews.album_id
 join users on users.id = album_reviews.user_id
 where album_reviews.id = $1;
+
+-- name: DeleteReview :exec
+delete from album_reviews
+where album_reviews.id = $1;
+
+-- name: UpdateReview :exec
+update album_reviews
+set 
+title = $1,
+review = $2,
+score = $3
+where 
+id = $4;
+

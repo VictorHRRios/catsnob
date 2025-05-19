@@ -5,5 +5,19 @@
 ACCESS DENIED
 {{ else }}
 <a href="admin/createArtistDisc">register artists</a>
+
+<div class="reviews">
+	<p> Artist </p>
+	<p> Created At </p>
+	<p> Updated At </p>
+	<p> Action </p>
+{{ range .Artists }}
+	<div><img src= '{{.ImgUrl}}'>{{ .Name }}</div>
+	<p>{{.CreatedAt}}</p>
+	<p>{{.UpdatedAt}}</p>
+	<button onclick="deleteArtist('{{ .ID }}')">Delete!</button>
 {{ end }}
+</div>
+{{ end }}
+<script src="/app/assets/jscript/artists.js"></script>
 {{ end }}

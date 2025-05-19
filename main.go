@@ -44,14 +44,14 @@ func main() {
 		http.Redirect(w, r, "/app/home", http.StatusSeeOther)
 	})
 
-	mux.HandleFunc("/we_are", handleWeAre)
-	mux.HandleFunc("/this_is", handleThisIs)
+	mux.HandleFunc("GET /app/we_are", apiCfg.AuthMiddleware(handleWeAre))
+	mux.HandleFunc("GET /app/this_is", apiCfg.AuthMiddleware(handleThisIs))
 
 	mux.HandleFunc("GET /app/home", apiCfg.AuthMiddleware(apiCfg.HandlerIndex))
 	mux.HandleFunc("GET /app/home/albums", apiCfg.AuthMiddleware(apiCfg.HandlerAlbums))
 	mux.HandleFunc("GET /app/home/tracks", apiCfg.AuthMiddleware(apiCfg.HandlerTracks))
-	mux.HandleFunc("GET /app/join", apiCfg.HandlerJoin)
-	mux.HandleFunc("GET /app/login", apiCfg.HandlerLogin)
+	mux.HandleFunc("GET /app/join", handlers.HandlerJoin)
+	mux.HandleFunc("GET /app/login", handlers.HandlerLogin)
 	mux.HandleFunc("GET /app/user/{username}", apiCfg.AuthMiddleware(apiCfg.HandlerUserProfile))
 	mux.HandleFunc("GET /app/user/{username}/review/{reviewid}", apiCfg.AuthMiddleware(apiCfg.HandlerUserReview))
 	mux.HandleFunc("GET /app/artist/{artistid}", apiCfg.AuthMiddleware(apiCfg.HandlerArtistProfile))
@@ -60,6 +60,11 @@ func main() {
 
 	mux.HandleFunc("GET /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerFormArtistDisc))
 	mux.HandleFunc("GET /admin", apiCfg.AuthMiddleware(apiCfg.HandlerAdminIndex))
+
+	mux.HandleFunc("PUT /app/updateAlbumReview", apiCfg.AuthMiddleware(apiCfg.HandlerUpdateAlbumReview))
+
+	mux.HandleFunc("DELETE /app/deleteAlbumReview", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteAlbumReview))
+	mux.HandleFunc("DELETE /admin/deleteArtist", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteArtist))
 
 	mux.HandleFunc("POST /app/createAlbumReview", apiCfg.AuthMiddleware(apiCfg.HandlerCreateAlbumReview))
 	mux.HandleFunc("POST /app/join", apiCfg.HandlerCreateUser)
@@ -71,6 +76,6 @@ func main() {
 		Addr:    ":" + port,
 		Handler: mux,
 	}
-
+	log.Print("Server running on port 8080...")
 	log.Fatal(srv.ListenAndServe())
 }

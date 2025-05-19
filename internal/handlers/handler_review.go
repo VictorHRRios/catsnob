@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"path/filepath"
 
@@ -58,6 +61,59 @@ func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Re
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/app/album/%v", albumID), http.StatusFound)
+}
+
+func (cfg *ApiConfig) HandlerDeleteAlbumReview(w http.ResponseWriter, r *http.Request, u *database.User) {
+	type DeleteRequest struct {
+		ID uuid.UUID `json:"reviewId"`
+	}
+	var req DeleteRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	err = cfg.Queries.DeleteReview(context.Background(), req.ID)
+	if err != nil {
+		http.Error(w, "Could not delete request", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"status":"success"}`))
+}
+
+func (cfg *ApiConfig) HandlerUpdateAlbumReview(w http.ResponseWriter, r *http.Request, u *database.User) {
+	type UpdateRequest struct {
+		ID      uuid.UUID `json:"id"`
+		Title   string    `json:"title"`
+		Content string    `json:"content"`
+		Score   string    `json:"rating"`
+	}
+	var req UpdateRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	log.Print(req)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	err = cfg.Queries.UpdateReview(context.Background(), database.UpdateReviewParams{
+		Title:  sql.NullString{String: req.Title, Valid: true},
+		Review: sql.NullString{String: req.Content, Valid: true},
+		Score:  req.Score,
+		ID:     req.ID,
+	})
+	if err != nil {
+		http.Error(w, "Could not update request", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"status":"success"}`))
 }
 
 func (cfg *ApiConfig) HandlerUserReview(w http.ResponseWriter, r *http.Request, u *database.User) {

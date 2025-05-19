@@ -14,6 +14,9 @@ returning *;
 -- name: GetAlbum :one
 select * from albums where id = $1;
 
+-- name: GetAlbums :many
+select * from albums;
+
 -- name: GetArtistAlbums :many
 select albums.id, albums.name, albums.genre, albums.img_url, artists.name as artist_name
 from albums

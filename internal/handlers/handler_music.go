@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -73,6 +75,7 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 		User       *database.User
 		Album      database.Album
 		ArtistName string
+		UserReview *database.AlbumReview
 	}
 	tmplPath := filepath.Join("templates", "music", "album.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
@@ -91,7 +94,7 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 
 	album, err := cfg.Queries.GetAlbum(context.Background(), albumID)
 	if err != nil {
-		if err := tmpl.Execute(w, returnVals{Error: "Error fetching albums"}); err != nil {
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching albums: %v", err)}); err != nil {
 			http.Error(w, "error rendering template", http.StatusInternalServerError)
 			return
 		}
@@ -100,7 +103,7 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 
 	tracks, err := cfg.Queries.GetAlbumTracks(context.Background(), albumID)
 	if err != nil {
-		if err := tmpl.Execute(w, returnVals{Error: "Error fetching tracks"}); err != nil {
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching tracks: %v", err)}); err != nil {
 			http.Error(w, "error rendering template", http.StatusInternalServerError)
 			return
 		}
@@ -111,6 +114,29 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 		User:   u,
 		Album:  album,
 	}
+	if u == nil {
+		if err = tmpl.Execute(w, returnBody); err != nil {
+			http.Error(w, "Error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	userReview, err := cfg.Queries.GetReviewByUserAlbum(context.Background(), database.GetReviewByUserAlbumParams{
+		AlbumID: album.ID,
+		UserID:  u.ID,
+	})
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching user review: %v", err)}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		returnBody.UserReview = &userReview
+	}
+
 	if err = tmpl.Execute(w, returnBody); err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return

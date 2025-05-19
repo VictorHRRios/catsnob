@@ -57,6 +57,16 @@ func (q *Queries) CreateArtist(ctx context.Context, arg CreateArtistParams) (Art
 	return i, err
 }
 
+const deleteArtist = `-- name: DeleteArtist :exec
+delete from artists
+where artists.id = $1
+`
+
+func (q *Queries) DeleteArtist(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteArtist, id)
+	return err
+}
+
 const getArtist = `-- name: GetArtist :one
 select id, created_at, updated_at, formed_at, name, biography, genre, img_url from artists
 where id = $1
@@ -76,6 +86,42 @@ func (q *Queries) GetArtist(ctx context.Context, id uuid.UUID) (Artist, error) {
 		&i.ImgUrl,
 	)
 	return i, err
+}
+
+const getArtists = `-- name: GetArtists :many
+select id, created_at, updated_at, formed_at, name, biography, genre, img_url from artists
+`
+
+func (q *Queries) GetArtists(ctx context.Context) ([]Artist, error) {
+	rows, err := q.db.QueryContext(ctx, getArtists)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Artist
+	for rows.Next() {
+		var i Artist
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.FormedAt,
+			&i.Name,
+			&i.Biography,
+			&i.Genre,
+			&i.ImgUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getTop12Artists = `-- name: GetTop12Artists :many
