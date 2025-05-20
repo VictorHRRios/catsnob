@@ -1,0 +1,33 @@
+{{ define "title" }}Home Page | Edit your Playlist {{ end }}
+
+{{ define "content" }}
+<div id="content">
+	<div class="header">
+		<a href="/app/home">
+			Artists
+		</a>
+		<a href="/app/home/albums">
+			Albums
+		</a>
+		<a href="/app/home/tracks">
+			Tracks
+		</a>
+        <a href="/app/home/lists" class="selected">
+			Lists
+		</a>
+	</div>
+
+	<div class="table">
+        <a class="add_album" href="/app/add_albums/{{ .PlaylistID }}">Add Albums!</a>
+        <a class="delete_album" href="/app/delete_albums/{{ .PlaylistID }}">Delete Albums</a>
+        <a class="delete_list" href="/app/delete_list/{{ .PlaylistID }}">Delete List:&#40;</a>
+	</div>
+	<div class="table">
+		{{ range .Playlist}}
+		<div class="table-elem">
+			<a class="name" href="/app/album/{{ .ID }}"><img src="{{.ImgUrl }}" alt="Album Image"> {{ .Name }}</a>
+		</div>
+		{{end}}
+	</div>
+</div>
+{{ end }}

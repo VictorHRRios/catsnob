@@ -1,0 +1,27 @@
+{{ define "title" }}Home Page | Create Playlist{{ end }}
+
+{{ define "content" }}
+<div id="content">
+	<div class="header">
+		<a href="/app/home">
+			Artists
+		</a>
+		<a href="/app/home/albums">
+			Albums
+		</a>
+		<a href="/app/home/tracks">
+			Tracks
+		</a>
+        <a href="/app/home/lists" class="selected">
+			Lists
+		</a>
+	</div>
+    <h1>Hola</h1>
+    <form action="/app/createAlbumList" method="POST">
+        <label for="titleList">What do you want to name this list?</label>
+        <input type="text" name="titleList" value="title">
+        <button type="submit">Create List</button>
+    </form>
+    <h2>bye</h2>
+</div>
+{{ end }}

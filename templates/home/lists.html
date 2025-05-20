@@ -1,0 +1,31 @@
+{{ define "title" }}Home Page | Lists{{ end }}
+
+{{ define "content" }}
+<div id="content">
+	<div class="header">
+		<a href="/app/home">
+			Artists
+		</a>
+		<a href="/app/home/albums">
+			Albums
+		</a>
+		<a href="/app/home/tracks">
+			Tracks
+		</a>
+        <a href="/app/home/lists" class="selected">
+			Lists
+		</a>
+	</div>
+	<div class="create-list">
+        <a class="create_list" href="/app/lists/create_list">New list</a>
+	</div>
+	<div class="table-lists">
+		{{ range .UserLists}}
+		<div class="table-elem">
+			<a class="name" href="/app/lists/edit_list/{{ .ID }}"> {{ .Title.String }}</a>
+		</div>
+
+		{{end}}
+	</div>
+</div>
+{{ end }}
