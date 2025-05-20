@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"net/http"
 	"path/filepath"
@@ -103,6 +104,41 @@ func (cfg *ApiConfig) HandlerTracks(w http.ResponseWriter, r *http.Request, u *d
 	respBody := returnVals{
 		Stylesheet: nil,
 		Tracks:     tracks,
+		User:       u,
+	}
+	if err := tmpl.Execute(w, respBody); err != nil {
+		http.Error(w, "error rendering template", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (cfg *ApiConfig) HandlerLists(w http.ResponseWriter, r *http.Request, u *database.User) {
+	fmt.Println("HandlerList ejecutado con el user", u)
+	type returnVals struct {
+		Stylesheet *string
+		UserLists  []database.GetUserListsRow
+		User       *database.User
+		Error      string
+	}
+	tmplPath := filepath.Join("templates", "home", "lists.html")
+	tmpl, err := template.ParseFiles(layout, tmplPath)
+	if err != nil {
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
+		return
+	}
+
+	// Esto lo voy a modificar, es un placeholder al igual que la queri
+	uLists, err := cfg.Queries.GetUserLists(context.Background(), u.ID)
+	if err != nil || len(uLists) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		tmpl.Execute(w, returnVals{Error: "No album lists found"})
+		return
+	}
+	fmt.Println("Listas de álbumes obtenidas:", uLists)
+
+	respBody := returnVals{
+		Stylesheet: nil,
+		UserLists:  uLists,
 		User:       u,
 	}
 	if err := tmpl.Execute(w, respBody); err != nil {
