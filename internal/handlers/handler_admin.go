@@ -139,7 +139,7 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var validArtistBio bool
+	var artistBio sql.NullString
 
 	name := r.FormValue("artist_id")
 	retrArtist, err := api.GetArtist(&name)
@@ -158,15 +158,15 @@ func (cfg *ApiConfig) HandlerCreateArtistDisc(w http.ResponseWriter, r *http.Req
 	artist := retrArtist.Artists[0]
 
 	if artist.StrBiographyEN == nil {
-		validArtistBio = false
+		artistBio = sql.NullString{}
 	} else {
-		validArtistBio = true
+		artistBio = sql.NullString{String: *artist.StrBiographyEN, Valid: true}
 	}
 
 	artistDB, err := cfg.Queries.CreateArtist(context.Background(), database.CreateArtistParams{
 		FormedAt:  artist.IntFormedYear,
 		Name:      artist.StrArtist,
-		Biography: sql.NullString{String: *artist.StrBiographyEN, Valid: validArtistBio},
+		Biography: artistBio,
 		Genre:     artist.StrGenre,
 		ImgUrl:    artist.StrArtistThumb,
 	})

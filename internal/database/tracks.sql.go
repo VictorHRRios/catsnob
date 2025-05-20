@@ -142,3 +142,53 @@ func (q *Queries) GetTrack(ctx context.Context, id uuid.UUID) (GetTrackRow, erro
 	)
 	return i, err
 }
+
+const getTracks = `-- name: GetTracks :many
+select distinct on (albums.name)
+	tracks.id, tracks.name, tracks.duration,
+	albums.name as album_name, albums.img_url as img_url,
+	artists.name as artist_name
+from tracks
+join albums on albums.id = tracks.album_id
+join artists on artists.id = albums.artist_id
+limit 12
+`
+
+type GetTracksRow struct {
+	ID         uuid.UUID
+	Name       string
+	Duration   int32
+	AlbumName  string
+	ImgUrl     string
+	ArtistName string
+}
+
+func (q *Queries) GetTracks(ctx context.Context) ([]GetTracksRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTracks)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetTracksRow
+	for rows.Next() {
+		var i GetTracksRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Duration,
+			&i.AlbumName,
+			&i.ImgUrl,
+			&i.ArtistName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

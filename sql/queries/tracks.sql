@@ -29,3 +29,13 @@ from tracks
 join albums on albums.id = tracks.album_id
 join artists on artists.id = albums.artist_id
 limit 12;
+
+-- name: GetTracks :many
+select distinct on (albums.name)
+	tracks.id, tracks.name, tracks.duration,
+	albums.name as album_name, albums.img_url as img_url,
+	artists.name as artist_name
+from tracks
+join albums on albums.id = tracks.album_id
+join artists on artists.id = albums.artist_id
+limit 12;

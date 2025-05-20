@@ -26,7 +26,7 @@ func (cfg *ApiConfig) HandlerIndex(w http.ResponseWriter, r *http.Request, u *da
 		return
 	}
 
-	artists, err := cfg.Queries.GetTop12Artists(context.Background())
+	artists, err := cfg.Queries.GetArtists(context.Background())
 	if err != nil {
 		if err := tmpl.Execute(w, returnVals{Error: "Could not fetch artists"}); err != nil {
 			http.Error(w, "error rendering template", http.StatusInternalServerError)
@@ -48,7 +48,7 @@ func (cfg *ApiConfig) HandlerIndex(w http.ResponseWriter, r *http.Request, u *da
 func (cfg *ApiConfig) HandlerAlbums(w http.ResponseWriter, r *http.Request, u *database.User) {
 	type returnVals struct {
 		Stylesheet *string
-		Albums     []database.GetTop12AlbumsRow
+		Albums     []database.Album
 		User       *database.User
 		Error      string
 	}
@@ -59,7 +59,7 @@ func (cfg *ApiConfig) HandlerAlbums(w http.ResponseWriter, r *http.Request, u *d
 		return
 	}
 
-	albums, err := cfg.Queries.GetTop12Albums(context.Background())
+	albums, err := cfg.Queries.GetAlbums(context.Background())
 	if err != nil {
 		if err := tmpl.Execute(w, returnVals{Error: "Could not fetch albums"}); err != nil {
 			http.Error(w, "error rendering template", http.StatusInternalServerError)
@@ -81,7 +81,7 @@ func (cfg *ApiConfig) HandlerAlbums(w http.ResponseWriter, r *http.Request, u *d
 func (cfg *ApiConfig) HandlerTracks(w http.ResponseWriter, r *http.Request, u *database.User) {
 	type returnVals struct {
 		Stylesheet *string
-		Tracks     []database.GetTop12TracksRow
+		Tracks     []database.GetTracksRow
 		User       *database.User
 		Error      string
 	}
@@ -92,7 +92,7 @@ func (cfg *ApiConfig) HandlerTracks(w http.ResponseWriter, r *http.Request, u *d
 		return
 	}
 
-	tracks, err := cfg.Queries.GetTop12Tracks(context.Background())
+	tracks, err := cfg.Queries.GetTracks(context.Background())
 	if err != nil {
 		if err := tmpl.Execute(w, returnVals{Error: "Could not fetch tracks"}); err != nil {
 			http.Error(w, "error rendering template", http.StatusInternalServerError)
