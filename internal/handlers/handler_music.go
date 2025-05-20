@@ -76,6 +76,7 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 		Album      database.Album
 		ArtistName string
 		UserReview *database.AlbumReview
+		Reviews    []database.GetReviewByAlbumRow
 	}
 	tmplPath := filepath.Join("templates", "music", "album.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
@@ -109,10 +110,21 @@ func (cfg *ApiConfig) HandlerAlbum(w http.ResponseWriter, r *http.Request, u *da
 		}
 		return
 	}
+
+	reviews, err := cfg.Queries.GetReviewByAlbum(context.Background(), albumID)
+	if err != nil {
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching tracks: %v", err)}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
 	returnBody := returnVals{
-		Tracks: tracks,
-		User:   u,
-		Album:  album,
+		Tracks:  tracks,
+		User:    u,
+		Album:   album,
+		Reviews: reviews,
 	}
 	if u == nil {
 		if err = tmpl.Execute(w, returnBody); err != nil {

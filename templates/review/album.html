@@ -10,8 +10,21 @@
 	</a>
 	<h2> {{.Review.AlbumName}}</h2>
 	</div>
-	{{.Review.Score}}
+	<div class="review">
+	<h2>
 	{{ .Review.Title }}
+	</h2>
+	<p id="score">
+	</p>
+	<p>
 	{{ .Review.Review }}
+	</p>
+	</div>
 </div>
+<script src="/app/assets/jscript/reviews.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        getReview(parseFloat({{.Review.Score}}));
+    });
+</script>
 {{ end }}

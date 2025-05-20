@@ -23,8 +23,10 @@ join albums on albums.id = album_reviews.album_id
 where user_id = $1;
 
 -- name: GetReviewByAlbum :many
-select * from album_reviews
-where album_id = $1;
+select album_reviews.*, users.name, users.img_url
+from album_reviews
+join users on users.id = album_reviews.user_id
+where album_reviews.album_id = $1;
 
 -- name: GetReview :one
 select album_reviews.*, albums.id as album_id, albums.name as album_name, albums.img_url as album_img, users.name as username

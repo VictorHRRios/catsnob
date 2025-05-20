@@ -198,6 +198,12 @@ nav .profile-img {
 	min-width: 20rem;
 }
 
+.review {
+	padding: 1rem;
+	text-align: left;
+	background-color: #fff9ec;
+}
+
 .action-btn {
 	padding: 8px;
 	border-radius: 4px;
@@ -220,4 +226,16 @@ nav .profile-img {
 
 .update-btn {
 	background-color: #1976d2;
+}
+  
+.star {
+	display: inline-block;
+	color: #FFC107; /* Yellow color for stars */
+	font-size: 18px;
+}
+
+.tracks {
+  padding: 0 1rem 1rem 1rem;
+  align-items: left;
+  display: grid;
 }

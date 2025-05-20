@@ -111,19 +111,34 @@ func (q *Queries) GetReview(ctx context.Context, id uuid.UUID) (GetReviewRow, er
 }
 
 const getReviewByAlbum = `-- name: GetReviewByAlbum :many
-select id, created_at, updated_at, user_id, album_id, title, review, score from album_reviews
-where album_id = $1
+select album_reviews.id, album_reviews.created_at, album_reviews.updated_at, album_reviews.user_id, album_reviews.album_id, album_reviews.title, album_reviews.review, album_reviews.score, users.name, users.img_url
+from album_reviews
+join users on users.id = album_reviews.user_id
+where album_reviews.album_id = $1
 `
 
-func (q *Queries) GetReviewByAlbum(ctx context.Context, albumID uuid.UUID) ([]AlbumReview, error) {
+type GetReviewByAlbumRow struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	AlbumID   uuid.UUID
+	Title     string
+	Review    string
+	Score     string
+	Name      string
+	ImgUrl    string
+}
+
+func (q *Queries) GetReviewByAlbum(ctx context.Context, albumID uuid.UUID) ([]GetReviewByAlbumRow, error) {
 	rows, err := q.db.QueryContext(ctx, getReviewByAlbum, albumID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []AlbumReview
+	var items []GetReviewByAlbumRow
 	for rows.Next() {
-		var i AlbumReview
+		var i GetReviewByAlbumRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CreatedAt,
@@ -133,6 +148,8 @@ func (q *Queries) GetReviewByAlbum(ctx context.Context, albumID uuid.UUID) ([]Al
 			&i.Title,
 			&i.Review,
 			&i.Score,
+			&i.Name,
+			&i.ImgUrl,
 		); err != nil {
 			return nil, err
 		}
