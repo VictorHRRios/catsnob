@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -14,7 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Request, u *database.User) {
+func (cfg *ApiConfig) HandlerCreateReview(w http.ResponseWriter, r *http.Request, u *database.User) {
 	type returnVals struct {
 		Error      string
 		Stylesheet *string
@@ -46,7 +45,9 @@ func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Re
 		}
 		return
 	}
-	_, err = cfg.Queries.CreateReviewShort(context.Background(), database.CreateReviewShortParams{
+	_, err = cfg.Queries.CreateReview(context.Background(), database.CreateReviewParams{
+		Title:   "",
+		Review:  "",
 		UserID:  u.ID,
 		AlbumID: album.ID,
 		Score:   rating,
@@ -63,7 +64,41 @@ func (cfg *ApiConfig) HandlerCreateAlbumReview(w http.ResponseWriter, r *http.Re
 	http.Redirect(w, r, fmt.Sprintf("/app/album/%v", albumID), http.StatusFound)
 }
 
-func (cfg *ApiConfig) HandlerDeleteAlbumReview(w http.ResponseWriter, r *http.Request, u *database.User) {
+func (cfg *ApiConfig) HandlerCreateReviewLong(w http.ResponseWriter, r *http.Request, u *database.User) {
+	type CreateRequest struct {
+		ID     uuid.UUID `json:"id"`
+		Title  string    `json:"title"`
+		Review string    `json:"review"`
+		Score  string    `json:"rating"`
+	}
+	var req CreateRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	log.Print(req)
+	if err != nil {
+		log.Print(err)
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	_, err = cfg.Queries.CreateReview(context.Background(), database.CreateReviewParams{
+		Title:   req.Title,
+		Review:  req.Review,
+		Score:   req.Score,
+		AlbumID: req.ID,
+		UserID:  u.ID,
+	})
+	if err != nil {
+		log.Print(err)
+		http.Error(w, "Could not create", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"status":"success"}`))
+}
+
+func (cfg *ApiConfig) HandlerDeleteReview(w http.ResponseWriter, r *http.Request, u *database.User) {
 	type DeleteRequest struct {
 		ID uuid.UUID `json:"reviewId"`
 	}
@@ -85,29 +120,31 @@ func (cfg *ApiConfig) HandlerDeleteAlbumReview(w http.ResponseWriter, r *http.Re
 	w.Write([]byte(`{"status":"success"}`))
 }
 
-func (cfg *ApiConfig) HandlerUpdateAlbumReview(w http.ResponseWriter, r *http.Request, u *database.User) {
+func (cfg *ApiConfig) HandlerUpdateReview(w http.ResponseWriter, r *http.Request, u *database.User) {
 	type UpdateRequest struct {
-		ID      uuid.UUID `json:"id"`
-		Title   string    `json:"title"`
-		Content string    `json:"content"`
-		Score   string    `json:"rating"`
+		ID     uuid.UUID `json:"id"`
+		Title  string    `json:"title"`
+		Review string    `json:"review"`
+		Score  string    `json:"rating"`
 	}
 	var req UpdateRequest
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	log.Print(req)
 	if err != nil {
+		log.Print(err)
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 
 	err = cfg.Queries.UpdateReview(context.Background(), database.UpdateReviewParams{
-		Title:  sql.NullString{String: req.Title, Valid: true},
-		Review: sql.NullString{String: req.Content, Valid: true},
+		Title:  req.Title,
+		Review: req.Review,
 		Score:  req.Score,
 		ID:     req.ID,
 	})
 	if err != nil {
+		log.Print(err)
 		http.Error(w, "Could not update request", http.StatusBadRequest)
 		return
 	}
@@ -123,8 +160,6 @@ func (cfg *ApiConfig) HandlerUserReview(w http.ResponseWriter, r *http.Request, 
 		User        *database.User
 		ProfileUser *database.User
 		Review      *database.GetReviewRow
-		Title       string
-		AlbumReview string
 	}
 	tmplPath := filepath.Join("templates", "review", "album.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
@@ -152,10 +187,8 @@ func (cfg *ApiConfig) HandlerUserReview(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	returnBody := returnVals{
-		User:        u,
-		Review:      &review,
-		Title:       review.Title.String,
-		AlbumReview: review.Review.String,
+		User:   u,
+		Review: &review,
 	}
 	if err := tmpl.Execute(w, returnBody); err != nil {
 		http.Error(w, "error rendering template", http.StatusInternalServerError)

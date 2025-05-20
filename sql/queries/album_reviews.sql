@@ -1,18 +1,4 @@
--- name: CreateReviewShort :one
-insert into album_reviews (id, created_at, updated_at, user_id, album_id, title, review, score)
-values (
-	gen_random_uuid(),
-	NOW(),
-	NOW(),
-	$1,
-	$2,
-	NULL,
-	NULL,
-	$3
-)
-returning *;
-
--- name: CreateReviewLong :one
+-- name: CreateReview :one
 insert into album_reviews (id, created_at, updated_at, user_id, album_id, title, review, score)
 values (
 	gen_random_uuid(),

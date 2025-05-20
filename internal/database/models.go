@@ -27,8 +27,8 @@ type AlbumReview struct {
 	UpdatedAt time.Time
 	UserID    uuid.UUID
 	AlbumID   uuid.UUID
-	Title     sql.NullString
-	Review    sql.NullString
+	Title     string
+	Review    string
 	Score     string
 }
 

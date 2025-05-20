@@ -1,7 +1,7 @@
 let currentReviewId = null;
 
 function deleteReview(id) {
-  fetch('/app/deleteAlbumReview', {
+  fetch('/app/deleteReview', {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'
@@ -18,14 +18,42 @@ function deleteReview(id) {
   });
 }
 
+function submitCreate(id) {
+  const createdData = {
+    title: document.getElementById('new_title').value,
+    review: document.getElementById('new_review').value,
+    rating: document.getElementById('new_rating').value
+  };
+
+  fetch('/app/createReviewLong', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+	id: id,
+      ...createdData
+    })
+  })
+  .then(response => {
+    if (response.ok) {
+      alert("Review created!");
+      window.location.reload();
+    } else {
+      alert("Failed to create review");
+    }
+    closeDialog();
+  });
+}
+
 function submitUpdate(id) {
   const updatedData = {
     title: document.getElementById('title').value,
-    content: document.getElementById('content').value,
+    review: document.getElementById('review').value,
     rating: document.getElementById('rating').value
   };
 
-  fetch('/app/updateAlbumReview', {
+  fetch('/app/updateReview', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
@@ -38,7 +66,7 @@ function submitUpdate(id) {
   .then(response => {
     if (response.ok) {
       alert("Review updated!");
-      window.location.reload(); // or update DOM if you prefer
+      window.location.reload();
     } else {
       alert("Failed to update review");
     }
@@ -55,7 +83,14 @@ function showDialog(id) {
   // document.getElementById("dialog-title").value = document.getElementById(`title-${id}`).textContent;
 }
 
+function showDialogCreate() {
+  document.getElementById("createDialog").style.display = "block";
+}
+
 function closeDialog() {
-  document.getElementById("updateDialog").style.display = "none";
+  const dialog = document.querySelectorAll(".dialog");
+	for (let value of dialog) {
+		value.style.display = "none";
+	}
   currentReviewId = null;
 }

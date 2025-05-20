@@ -12,12 +12,24 @@
 
 	{{ if .UserReview }}
 	You already have a review of this album!
+
+	<div class="actions">
+		<a href="/app/user/{{ .User.Name }}/review/{{ .UserReview.ID}}" class="action-btn">
+			<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M120-120v-320h80v184l504-504H520v-80h320v320h-80v-184L256-200h184v80H120Z"/></svg>
+		</a>
+		<button onclick="deleteReview('{{ .UserReview.ID }}')" class="action-btn delete-btn">
+			<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+		</button>
+		<button onclick="showDialog('{{ .UserReview.ID }}')" class="action-btn update-btn">
+		<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>
+		</button>
+	</div>
 		
 	{{ else }}
 
-	<form action="/app/createAlbumReview" method="post">
+	<form action="/app/createReview" method="post">
 		<input type="hidden" name="albumid" value="{{.Album.ID}}">
-		<label for="rating">Rate this item:</label>
+		<label for="rating">Rate this album:</label>
 		<select name="rating" id="rating" required>
 			<option value="">Select a rating</option>
 			<option value="0.5">0.5</option>
@@ -33,6 +45,9 @@
 		</select>
 		<button type="submit">Submit</button>
 	</form>
+
+	<button onclick="showDialogCreate()">Write Review!</button>
+
 	{{ end }}
 	{{ else }}
 	<p><a href="/app/login">Log in!</a> to rate it</p>
@@ -40,15 +55,59 @@
 </div>
 
 <div>
-
-
-{{ range .Tracks}}
-<div class="table-elem">
-	<a href="/app/track/{{.ID}}"> {{.AlbumTrackNumber}}. {{.Name}} </a>
-
-</div>
-{{end}}
+	{{ range .Tracks}}
+	<div class="table-elem">
+		<a href="/app/track/{{.ID}}"> {{.AlbumTrackNumber}}. {{.Name}} </a>
+	</div>
+	{{end}}
 </div>
 </div>
 
+<div id="createDialog" class="dialog">
+	<h3>Create Review</h3>
+	<input id="new_title" type="text" placeholder="Title"><br><br>
+	<textarea id="new_review" placeholder="Reviw this album!"></textarea><br><br>
+	<label for="rating">Rate this album:</label>
+	<select name="rating" id="new_rating" required>
+		<option value="">Select a rating</option>
+		<option value="0.5">0.5</option>
+		<option value="1.0">1.0</option>
+		<option value="1.5">1.5</option>
+		<option value="2.0">2.0</option>
+		<option value="2.5">2.5</option>
+		<option value="3.0">3.0</option>
+		<option value="3.5">3.5</option>
+		<option value="4.0">4.0</option>
+		<option value="4.5">4.5</option>
+		<option value="5.0">5.0</option>
+	</select>
+	<button onclick="submitCreate({{.Album.ID}})">Submit</button>
+	<button onclick="closeDialog()">Cancel</button>
+</div>
+
+{{ if .UserReview }}
+<div id="updateDialog" class="dialog">
+	<h3>Update Review</h3>
+	<input id="title" type="text" placeholder="Title" value="{{.UserReview.Title}}"><br><br>
+	<textarea id="review" placeholder="Review this album">{{.UserReview.Review}}</textarea><br><br>
+	<label for="rating">Rate this album:</label>
+	<select name="rating" id="rating" required>
+		<option value="">Select a rating</option>
+		<option value="0.5" {{if eq .UserReview.Score "0.5"}}selected{{end}}>0.5</option>
+		<option value="1.0" {{if eq .UserReview.Score "1.0"}}selected{{end}}>1.0</option>
+		<option value="1.5" {{if eq .UserReview.Score "1.5"}}selected{{end}}>1.5</option>
+		<option value="2.0" {{if eq .UserReview.Score "2.0"}}selected{{end}}>2.0</option>
+		<option value="2.5" {{if eq .UserReview.Score "2.5"}}selected{{end}}>2.5</option>
+		<option value="3.0" {{if eq .UserReview.Score "3.0"}}selected{{end}}>3.0</option>
+		<option value="3.5" {{if eq .UserReview.Score "3.5"}}selected{{end}}>3.5</option>
+		<option value="4.0" {{if eq .UserReview.Score "4.0"}}selected{{end}}>4.0</option>
+		<option value="4.5" {{if eq .UserReview.Score "4.5"}}selected{{end}}>4.5</option>
+		<option value="5.0" {{if eq .UserReview.Score "5.0"}}selected{{end}}>5.0</option>
+	</select>
+	<button onclick="submitUpdate()">Submit</button>
+	<button onclick="closeDialog()">Cancel</button>
+</div>
+{{ end }}
+
+<script src="/app/assets/jscript/reviews.js"></script>
 {{ end }}

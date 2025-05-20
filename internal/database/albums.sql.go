@@ -119,7 +119,7 @@ func (q *Queries) GetAlbumTracks(ctx context.Context, id uuid.UUID) ([]GetAlbumT
 }
 
 const getAlbums = `-- name: GetAlbums :many
-select id, created_at, updated_at, name, genre, img_url, artist_id from albums
+select id, created_at, updated_at, name, genre, img_url, artist_id from albums order by name
 `
 
 func (q *Queries) GetAlbums(ctx context.Context) ([]Album, error) {

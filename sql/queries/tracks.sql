@@ -38,4 +38,4 @@ select distinct on (albums.name)
 from tracks
 join albums on albums.id = tracks.album_id
 join artists on artists.id = albums.artist_id
-limit 12;
+order by albums.name;

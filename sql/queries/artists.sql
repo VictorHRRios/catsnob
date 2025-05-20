@@ -22,7 +22,7 @@ where artists.id = $1;
 
 
 -- name: GetArtists :many
-select * from artists;
+select * from artists order by name;
 
 -- name: GetTop12Artists :many
 select * from artists limit 12;

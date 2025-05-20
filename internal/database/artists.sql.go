@@ -89,7 +89,7 @@ func (q *Queries) GetArtist(ctx context.Context, id uuid.UUID) (Artist, error) {
 }
 
 const getArtists = `-- name: GetArtists :many
-select id, created_at, updated_at, formed_at, name, biography, genre, img_url from artists
+select id, created_at, updated_at, formed_at, name, biography, genre, img_url from artists order by name
 `
 
 func (q *Queries) GetArtists(ctx context.Context) ([]Artist, error) {

@@ -61,12 +61,13 @@ func main() {
 	mux.HandleFunc("GET /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerFormArtistDisc))
 	mux.HandleFunc("GET /admin", apiCfg.AuthMiddleware(apiCfg.HandlerAdminIndex))
 
-	mux.HandleFunc("PUT /app/updateAlbumReview", apiCfg.AuthMiddleware(apiCfg.HandlerUpdateAlbumReview))
+	mux.HandleFunc("PUT /app/updateReview", apiCfg.AuthMiddleware(apiCfg.HandlerUpdateReview))
 
-	mux.HandleFunc("DELETE /app/deleteAlbumReview", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteAlbumReview))
+	mux.HandleFunc("DELETE /app/deleteReview", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteReview))
 	mux.HandleFunc("DELETE /admin/deleteArtist", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteArtist))
 
-	mux.HandleFunc("POST /app/createAlbumReview", apiCfg.AuthMiddleware(apiCfg.HandlerCreateAlbumReview))
+	mux.HandleFunc("POST /app/createReview", apiCfg.AuthMiddleware(apiCfg.HandlerCreateReview))
+	mux.HandleFunc("POST /app/createReviewLong", apiCfg.AuthMiddleware(apiCfg.HandlerCreateReviewLong))
 	mux.HandleFunc("POST /app/join", apiCfg.HandlerCreateUser)
 	mux.HandleFunc("POST /app/login", apiCfg.HandlerAuthUser)
 	mux.HandleFunc("POST /app/logout", apiCfg.HandlerLogout)
