@@ -82,6 +82,7 @@ func main() {
 	mux.HandleFunc("POST /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerCreateArtistDisc))
 	mux.HandleFunc("POST /app/add_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerAddAlbumsToList))
 	mux.HandleFunc("POST /app/delete_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteAlbumsFromList))
+	mux.HandleFunc("POST /app/createAlbumList", apiCfg.AuthMiddleware(apiCfg.HandlerCreateAlbumList))
 
 	mux.HandleFunc("POST /app/createShout", apiCfg.AuthMiddleware(apiCfg.HandlerCreateShout))
 

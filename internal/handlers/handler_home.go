@@ -133,7 +133,7 @@ func (cfg *ApiConfig) HandlerLists(w http.ResponseWriter, r *http.Request, u *da
 	uLists, err := cfg.Queries.GetUserLists(context.Background(), u.ID)
 	if err != nil || len(uLists) == 0 {
 		w.WriteHeader(http.StatusNotFound)
-		if err := tmpl.Execute(w, returnVals{Error: "No album lists found"}); err != nil {
+		if err := tmpl.Execute(w, returnVals{User: u, Error: "No Lists found"}); err != nil {
 			fmt.Println("Error al renderizar la plantilla:", err)
 		}
 		return
