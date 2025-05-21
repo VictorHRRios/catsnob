@@ -1,4 +1,4 @@
-{{ define "title" }}Home Page | Add Albums{{ end }}
+{{ define "title" }}Home Page | Delete Albums{{ end }}
 
 {{ define "content" }}
 <div id="content">
@@ -16,8 +16,8 @@
 			Lists
 		</a>
 	</div>
-    <h1> Add new albums to the {{.Playlist_name}}</h1>
-	<form action="/app/add_albums/{{.PlaylistID}}" method="POST">
+    <h1> Delete albums from {{.Playlist_name}} </h1>
+	<form action="/app/delete_albums/{{.PlaylistID}}" method="POST">
     <div class="table">
         {{ range .Albums }}
         <div class="table-elem">

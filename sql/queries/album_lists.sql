@@ -42,3 +42,7 @@ WHERE id NOT IN (
 	FROM AlbumLists_Albums
 	WHERE album_lists_id = $1
 );
+
+-- name: DeleteAlbumFromList :exec
+DELETE FROM AlbumLists_Albums
+WHERE album_lists_id = $1 AND album_id = $2;

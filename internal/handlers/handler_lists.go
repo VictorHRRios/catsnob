@@ -213,3 +213,90 @@ func (cfg *ApiConfig) HandlerAddAlbumsToList(w http.ResponseWriter, r *http.Requ
 
 	http.Redirect(w, r, fmt.Sprintf("/app/lists/edit_list/%v", listID), http.StatusFound)
 }
+
+func (cfg *ApiConfig) HandlerDelete_Albums(w http.ResponseWriter, r *http.Request, u *database.User) {
+	fmt.Println("HandlerAdd_Albums ejecutado")
+	type returnVals struct {
+		Stylesheet    *string
+		Albums        []database.GetAlbumsFromListRow
+		Playlist_name string
+		PlaylistID    string
+		User          *database.User
+		Error         string
+	}
+	tmplPath := filepath.Join("templates", "lists", "delete_albums.html")
+	tmpl, err := template.ParseFiles(layout, tmplPath)
+	if err != nil {
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
+		return
+	}
+
+	listID, err := uuid.Parse(r.PathValue("listid"))
+
+	if err != nil {
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	list_name, _ := cfg.Queries.GetListName(context.Background(), listID)
+
+	albums, err := cfg.Queries.GetAlbumsFromList(context.Background(), listID)
+	if err != nil || len(albums) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		tmpl.Execute(w, returnVals{PlaylistID: listID.String(), Error: "No albums found"})
+		return
+	}
+
+	fmt.Println("Nombre de la lista", list_name)
+	fmt.Println("Albumes", albums)
+
+	respBody := returnVals{
+		Stylesheet:    nil,
+		Albums:        albums,
+		Playlist_name: list_name[0].String,
+		PlaylistID:    listID.String(),
+		User:          u,
+	}
+	if err := tmpl.Execute(w, respBody); err != nil {
+		http.Error(w, "error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+}
+
+func (cfg *ApiConfig) HandlerDeleteAlbumsFromList(w http.ResponseWriter, r *http.Request, u *database.User) {
+	fmt.Println("HandlerDeleteAlbumsFromList ejecutado")
+
+	err := r.ParseForm() // Analizo los datos del formulario
+	if err != nil {
+		http.Error(w, "Error form not complete", http.StatusBadRequest)
+		return
+	}
+
+	listID, err := uuid.Parse(r.PathValue("listid"))
+
+	albums := r.Form["album_ids"]
+
+	if len(albums) == 0 {
+		http.Error(w, "Error albums selecteds can not be null", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println("Albums recibidos", albums)
+
+	for _, albumID := range albums {
+		aid, _ := uuid.Parse(albumID)
+		err := cfg.Queries.DeleteAlbumFromList(context.Background(), database.DeleteAlbumFromListParams{
+			AlbumListsID: listID,
+			AlbumID:      aid,
+		})
+		if err == nil {
+			fmt.Println("Album correctamente elimiando.")
+		}
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/app/lists/edit_list/%v", listID), http.StatusFound)
+}

@@ -64,6 +64,21 @@ func (q *Queries) CreateAlbumList(ctx context.Context, arg CreateAlbumListParams
 	return i, err
 }
 
+const deleteAlbumFromList = `-- name: DeleteAlbumFromList :exec
+DELETE FROM AlbumLists_Albums
+WHERE album_lists_id = $1 AND album_id = $2
+`
+
+type DeleteAlbumFromListParams struct {
+	AlbumListsID uuid.UUID
+	AlbumID      uuid.UUID
+}
+
+func (q *Queries) DeleteAlbumFromList(ctx context.Context, arg DeleteAlbumFromListParams) error {
+	_, err := q.db.ExecContext(ctx, deleteAlbumFromList, arg.AlbumListsID, arg.AlbumID)
+	return err
+}
+
 const getAlbumsFromList = `-- name: GetAlbumsFromList :many
 SELECT a.id, a.name, a.img_url
 FROM albums as a
