@@ -16,6 +16,7 @@
 			Lists
 		</a>
 	</div>
+	{{ if .User }}
 	<div class="create-list">
         <a class="create_list" href="/app/lists/create_list"><h1>New list</h1></a><br>
 	</div>
@@ -33,5 +34,8 @@
         </div>
         {{end}}
 	</div>
+	{{ else }}
+	You need to be logged in to create lists! <a href="/app/login">Log in!</a>
+	{{ end }}
 </div>
 {{ end }}

@@ -115,39 +115,47 @@ func (cfg *ApiConfig) HandlerTracks(w http.ResponseWriter, r *http.Request, u *d
 }
 
 func (cfg *ApiConfig) HandlerLists(w http.ResponseWriter, r *http.Request, u *database.User) {
-    fmt.Println("HandlerList ejecutado con el user", u)
-    type returnVals struct {
-        Stylesheet     *string
-        UserLists      []database.GetUserAlbumListsRow
-        UserTrackLists []database.GetUserTrackListsRow
-        User           *database.User
-        Error          string
-    }
-    tmplPath := filepath.Join("templates", "home", "lists.html")
-    tmpl, err := template.ParseFiles(layout, tmplPath)
-    if err != nil {
-        http.Error(w, "error parsing files", http.StatusInternalServerError)
-        return
-    }
+	fmt.Println("HandlerList ejecutado con el user", u)
+	type returnVals struct {
+		Stylesheet     *string
+		UserLists      []database.GetUserAlbumListsRow
+		UserTrackLists []database.GetUserTrackListsRow
+		User           *database.User
+		Error          string
+	}
+	tmplPath := filepath.Join("templates", "home", "lists.html")
+	tmpl, err := template.ParseFiles(layout, tmplPath)
+	if err != nil {
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
+		return
+	}
+	respBody := returnVals{
+		Stylesheet: nil,
+		User:       u,
+	}
 
-    uLists, err := cfg.Queries.GetUserAlbumLists(context.Background(), u.ID)
-    if err != nil {
-        uLists = []database.GetUserAlbumListsRow{}
-    }
+	if u == nil {
+		if err := tmpl.Execute(w, respBody); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
 
-    trackLists, err := cfg.Queries.GetUserTrackLists(context.Background(), u.ID)
-    if err != nil {
-        trackLists = []database.GetUserTrackListsRow{}
-    }
+	uLists, err := cfg.Queries.GetUserAlbumLists(context.Background(), u.ID)
+	if err != nil {
+		uLists = []database.GetUserAlbumListsRow{}
+	}
 
-    respBody := returnVals{
-        Stylesheet:     nil,
-        UserLists:      uLists,
-        UserTrackLists: trackLists,
-        User:           u,
-    }
-    if err := tmpl.Execute(w, respBody); err != nil {
-        http.Error(w, "error rendering template", http.StatusInternalServerError)
-        return
-    }
+	trackLists, err := cfg.Queries.GetUserTrackLists(context.Background(), u.ID)
+	if err != nil {
+		trackLists = []database.GetUserTrackListsRow{}
+	}
+
+	respBody.UserLists = uLists
+	respBody.UserTrackLists = trackLists
+	if err := tmpl.Execute(w, respBody); err != nil {
+		http.Error(w, "error rendering template", http.StatusInternalServerError)
+		return
+	}
 }
