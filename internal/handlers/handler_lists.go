@@ -84,47 +84,21 @@ func (cfg *ApiConfig) HandlerEdit_List(w http.ResponseWriter, r *http.Request, u
 }
 
 func (cfg *ApiConfig) HandlerCreateAlbumList(w http.ResponseWriter, r *http.Request, u *database.User) {
-	type returnVals struct {
-		Error      string
-		Stylesheet *string
-		User       *database.User
-		List       *database.AlbumList
-	}
 
-	if u == nil {
-		http.Error(w, "User is not authenticated", http.StatusUnauthorized)
-		return
-	}
+	name := r.FormValue("titleList")
+	description := r.FormValue("descriptionList")
 
-	tmplPath := filepath.Join("templates", "lists", "create_list.html")
-	tmpl, err := template.ParseFiles(layout, tmplPath)
-	if err != nil {
-		http.Error(w, "error parsing files", http.StatusInternalServerError)
-		return
-	}
-
-	title := r.FormValue("titleList")
-
-	if title == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		tmpl.Execute(w, returnVals{Error: "Title cannot be empty", User: u})
-		return
-	}
-
-	newList, err := cfg.Queries.CreateAlbumList(context.Background(), database.CreateAlbumListParams{
-		UserID: u.ID,
-		Title:  sql.NullString{String: title, Valid: title != ""},
+	newList, err := cfg.Queries.CreateUserList(context.Background(), database.CreateUserListParams{
+		Name:        sql.NullString{String: name, Valid: name != ""},
+		Description: sql.NullString{String: description, Valid: description != ""},
+		Type:        sql.NullString{String: "list", Valid: description != ""},
+		UserID:      u.ID,
 	})
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
-			http.Error(w, "error parsing files", http.StatusInternalServerError)
-			return
-		}
-		return
+		http.Error(w, "Error creating new user list", http.StatusBadRequest)
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/app/edit_list/%v", newList.ID), http.StatusFound)
+	http.Redirect(w, r, fmt.Sprintf("/app/edit_list/%v", newList.IDPlaylistA), http.StatusFound)
 }
 
 func (cfg *ApiConfig) HandlerAdd_Albums(w http.ResponseWriter, r *http.Request, u *database.User) {
@@ -203,8 +177,8 @@ func (cfg *ApiConfig) HandlerAddAlbumsToList(w http.ResponseWriter, r *http.Requ
 	for _, albumID := range albums {
 		aid, _ := uuid.Parse(albumID)
 		a, err := cfg.Queries.AddAlbumToList(context.Background(), database.AddAlbumToListParams{
-			AlbumListsID: listID,
-			AlbumID:      aid,
+			UserListsID: listID,
+			AlbumID:     aid,
 		})
 		if err == nil {
 			fmt.Println("Album correctamente agregado: ", a)
@@ -290,8 +264,8 @@ func (cfg *ApiConfig) HandlerDeleteAlbumsFromList(w http.ResponseWriter, r *http
 	for _, albumID := range albums {
 		aid, _ := uuid.Parse(albumID)
 		err := cfg.Queries.DeleteAlbumFromList(context.Background(), database.DeleteAlbumFromListParams{
-			AlbumListsID: listID,
-			AlbumID:      aid,
+			UserListsID: listID,
+			AlbumID:     aid,
 		})
 		if err == nil {
 			fmt.Println("Album correctamente elimiando.")

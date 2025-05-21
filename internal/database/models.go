@@ -22,11 +22,9 @@ type Album struct {
 }
 
 type AlbumList struct {
-	ID        uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	UserID    uuid.UUID
-	Title     sql.NullString
+	ID          uuid.UUID
+	UserListsID uuid.UUID
+	AlbumID     uuid.UUID
 }
 
 type AlbumReview struct {
@@ -38,12 +36,6 @@ type AlbumReview struct {
 	Title     sql.NullString
 	Review    sql.NullString
 	Score     string
-}
-
-type AlbumlistsAlbum struct {
-	ID           uuid.UUID
-	AlbumListsID uuid.UUID
-	AlbumID      uuid.UUID
 }
 
 type Artist struct {
@@ -84,4 +76,14 @@ type User struct {
 	ImgUrl         string
 	HashedPassword string
 	IsAdmin        bool
+}
+
+type UserList struct {
+	IDPlaylistA uuid.UUID
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Name        sql.NullString
+	Description sql.NullString
+	Type        sql.NullString
+	UserID      uuid.UUID
 }

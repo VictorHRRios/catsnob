@@ -13,77 +13,88 @@ import (
 )
 
 const addAlbumToList = `-- name: AddAlbumToList :one
-insert into AlbumLists_Albums (id, album_lists_id,album_id)
+insert into album_lists (id, user_lists_id,album_id)
 values (
 	gen_random_uuid(),
 	$1,
 	$2
 )
-returning id, album_lists_id, album_id
+returning id, user_lists_id, album_id
 `
 
 type AddAlbumToListParams struct {
-	AlbumListsID uuid.UUID
-	AlbumID      uuid.UUID
+	UserListsID uuid.UUID
+	AlbumID     uuid.UUID
 }
 
-func (q *Queries) AddAlbumToList(ctx context.Context, arg AddAlbumToListParams) (AlbumlistsAlbum, error) {
-	row := q.db.QueryRowContext(ctx, addAlbumToList, arg.AlbumListsID, arg.AlbumID)
-	var i AlbumlistsAlbum
-	err := row.Scan(&i.ID, &i.AlbumListsID, &i.AlbumID)
+func (q *Queries) AddAlbumToList(ctx context.Context, arg AddAlbumToListParams) (AlbumList, error) {
+	row := q.db.QueryRowContext(ctx, addAlbumToList, arg.UserListsID, arg.AlbumID)
+	var i AlbumList
+	err := row.Scan(&i.ID, &i.UserListsID, &i.AlbumID)
 	return i, err
 }
 
-const createAlbumList = `-- name: CreateAlbumList :one
-insert into album_lists (id, created_at, updated_at, user_id, title)
+const createUserList = `-- name: CreateUserList :one
+insert into user_lists (id_playlist_a, created_at, updated_at,name_,description_,type_, user_id)
 values (
 	gen_random_uuid(),
 	NOW(),
 	NOW(),
 	$1,
-	$2
+	$2,
+	$3,
+	$4
 )
-returning id, created_at, updated_at, user_id, title
+returning id_playlist_a, created_at, updated_at, name_, description_, type_, user_id
 `
 
-type CreateAlbumListParams struct {
-	UserID uuid.UUID
-	Title  sql.NullString
+type CreateUserListParams struct {
+	Name        sql.NullString
+	Description sql.NullString
+	Type        sql.NullString
+	UserID      uuid.UUID
 }
 
-func (q *Queries) CreateAlbumList(ctx context.Context, arg CreateAlbumListParams) (AlbumList, error) {
-	row := q.db.QueryRowContext(ctx, createAlbumList, arg.UserID, arg.Title)
-	var i AlbumList
+func (q *Queries) CreateUserList(ctx context.Context, arg CreateUserListParams) (UserList, error) {
+	row := q.db.QueryRowContext(ctx, createUserList,
+		arg.Name,
+		arg.Description,
+		arg.Type,
+		arg.UserID,
+	)
+	var i UserList
 	err := row.Scan(
-		&i.ID,
+		&i.IDPlaylistA,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Name,
+		&i.Description,
+		&i.Type,
 		&i.UserID,
-		&i.Title,
 	)
 	return i, err
 }
 
 const deleteAlbumFromList = `-- name: DeleteAlbumFromList :exec
-DELETE FROM AlbumLists_Albums
-WHERE album_lists_id = $1 AND album_id = $2
+DELETE FROM album_lists
+WHERE user_lists_id = $1 AND album_id = $2
 `
 
 type DeleteAlbumFromListParams struct {
-	AlbumListsID uuid.UUID
-	AlbumID      uuid.UUID
+	UserListsID uuid.UUID
+	AlbumID     uuid.UUID
 }
 
 func (q *Queries) DeleteAlbumFromList(ctx context.Context, arg DeleteAlbumFromListParams) error {
-	_, err := q.db.ExecContext(ctx, deleteAlbumFromList, arg.AlbumListsID, arg.AlbumID)
+	_, err := q.db.ExecContext(ctx, deleteAlbumFromList, arg.UserListsID, arg.AlbumID)
 	return err
 }
 
 const getAlbumsFromList = `-- name: GetAlbumsFromList :many
 SELECT a.id, a.name, a.img_url
 FROM albums as a
-JOIN AlbumLists_Albums as ala ON a.id = ala.album_id
-WHERE ala.album_lists_id = $1
+JOIN album_lists as al ON a.id = al.album_id
+WHERE al.user_lists_id = $1
 `
 
 type GetAlbumsFromListRow struct {
@@ -92,8 +103,8 @@ type GetAlbumsFromListRow struct {
 	ImgUrl string
 }
 
-func (q *Queries) GetAlbumsFromList(ctx context.Context, albumListsID uuid.UUID) ([]GetAlbumsFromListRow, error) {
-	rows, err := q.db.QueryContext(ctx, getAlbumsFromList, albumListsID)
+func (q *Queries) GetAlbumsFromList(ctx context.Context, userListsID uuid.UUID) ([]GetAlbumsFromListRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAlbumsFromList, userListsID)
 	if err != nil {
 		return nil, err
 	}
@@ -120,8 +131,8 @@ SELECT a.id, a.name, a.img_url
 FROM albums as a
 WHERE id NOT IN (
 	SELECT album_id 
-	FROM AlbumLists_Albums
-	WHERE album_lists_id = $1
+	FROM album_lists
+	WHERE user_lists_id = $1
 )
 `
 
@@ -131,8 +142,8 @@ type GetAlbumsNotInListRow struct {
 	ImgUrl string
 }
 
-func (q *Queries) GetAlbumsNotInList(ctx context.Context, albumListsID uuid.UUID) ([]GetAlbumsNotInListRow, error) {
-	rows, err := q.db.QueryContext(ctx, getAlbumsNotInList, albumListsID)
+func (q *Queries) GetAlbumsNotInList(ctx context.Context, userListsID uuid.UUID) ([]GetAlbumsNotInListRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAlbumsNotInList, userListsID)
 	if err != nil {
 		return nil, err
 	}
@@ -155,24 +166,24 @@ func (q *Queries) GetAlbumsNotInList(ctx context.Context, albumListsID uuid.UUID
 }
 
 const getListName = `-- name: GetListName :many
-SELECT list.title
-FROM album_lists as list
-WHERE list.id = $1
+SELECT list.name_
+FROM user_lists as list
+WHERE list.id_playlist_a = $1
 `
 
-func (q *Queries) GetListName(ctx context.Context, id uuid.UUID) ([]sql.NullString, error) {
-	rows, err := q.db.QueryContext(ctx, getListName, id)
+func (q *Queries) GetListName(ctx context.Context, idPlaylistA uuid.UUID) ([]sql.NullString, error) {
+	rows, err := q.db.QueryContext(ctx, getListName, idPlaylistA)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	var items []sql.NullString
 	for rows.Next() {
-		var title sql.NullString
-		if err := rows.Scan(&title); err != nil {
+		var name_ sql.NullString
+		if err := rows.Scan(&name_); err != nil {
 			return nil, err
 		}
-		items = append(items, title)
+		items = append(items, name_)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -184,14 +195,14 @@ func (q *Queries) GetListName(ctx context.Context, id uuid.UUID) ([]sql.NullStri
 }
 
 const getUserLists = `-- name: GetUserLists :many
-SELECT list.id, list.title
-FROM album_lists as list
+SELECT list.id_playlist_a, list.name_
+FROM user_lists as list
 WHERE list.user_id = $1
 `
 
 type GetUserListsRow struct {
-	ID    uuid.UUID
-	Title sql.NullString
+	IDPlaylistA uuid.UUID
+	Name        sql.NullString
 }
 
 func (q *Queries) GetUserLists(ctx context.Context, userID uuid.UUID) ([]GetUserListsRow, error) {
@@ -203,7 +214,7 @@ func (q *Queries) GetUserLists(ctx context.Context, userID uuid.UUID) ([]GetUser
 	var items []GetUserListsRow
 	for rows.Next() {
 		var i GetUserListsRow
-		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+		if err := rows.Scan(&i.IDPlaylistA, &i.Name); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
