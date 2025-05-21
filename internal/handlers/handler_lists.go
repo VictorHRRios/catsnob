@@ -68,7 +68,6 @@ func (cfg *ApiConfig) HandlerEdit_List(w http.ResponseWriter, r *http.Request, u
 		tmpl.Execute(w, returnVals{PlaylistID: listID.String(), User: u, Error: "No albums found"})
 		return
 	}
-	fmt.Println("Lista de álbumes obtenidas en edit_list:", albums)
 
 	respBody := returnVals{
 		Stylesheet: nil,
@@ -137,9 +136,6 @@ func (cfg *ApiConfig) HandlerAdd_Albums(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	fmt.Println("Nombre de la lista", list_name)
-	fmt.Println("Albumes", albums)
-
 	respBody := returnVals{
 		Stylesheet:    nil,
 		Albums:        albums,
@@ -171,8 +167,6 @@ func (cfg *ApiConfig) HandlerAddAlbumsToList(w http.ResponseWriter, r *http.Requ
 		http.Error(w, "Error albums selecteds can not be null", http.StatusBadRequest)
 		return
 	}
-
-	fmt.Println("Albums recibidos", albums)
 
 	for _, albumID := range albums {
 		aid, _ := uuid.Parse(albumID)
@@ -224,9 +218,6 @@ func (cfg *ApiConfig) HandlerDelete_Albums(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	fmt.Println("Nombre de la lista", list_name)
-	fmt.Println("Albumes", albums)
-
 	respBody := returnVals{
 		Stylesheet:    nil,
 		Albums:        albums,
@@ -258,8 +249,6 @@ func (cfg *ApiConfig) HandlerDeleteAlbumsFromList(w http.ResponseWriter, r *http
 		http.Error(w, "Error albums selecteds can not be null", http.StatusBadRequest)
 		return
 	}
-
-	fmt.Println("Albums recibidos", albums)
 
 	for _, albumID := range albums {
 		aid, _ := uuid.Parse(albumID)

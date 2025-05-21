@@ -138,7 +138,6 @@ func (cfg *ApiConfig) HandlerLists(w http.ResponseWriter, r *http.Request, u *da
 		}
 		return
 	}
-	fmt.Println("Listas de álbumes obtenidas:", uLists)
 
 	respBody := returnVals{
 		Stylesheet: nil,
