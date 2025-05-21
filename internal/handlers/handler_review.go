@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"log"
@@ -125,6 +126,8 @@ func (cfg *ApiConfig) HandlerUserReview(w http.ResponseWriter, r *http.Request, 
 		Review      *database.GetReviewRow
 		Title       string
 		AlbumReview string
+		Shouts      []database.GetShoutByReviewRow
+		ShoutUser   *database.Shout
 	}
 	tmplPath := filepath.Join("templates", "review", "album.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
@@ -151,13 +154,40 @@ func (cfg *ApiConfig) HandlerUserReview(w http.ResponseWriter, r *http.Request, 
 		}
 		return
 	}
+
+	shouts, err := cfg.Queries.GetShoutByReview(context.Background(), reviewID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error: %v", err)}); err != nil {
+			http.Error(w, "error parsing files", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+	shout_user, err := cfg.Queries.GetShoutByUserReview(context.Background(), database.GetShoutByUserReviewParams{
+		ReviewID: review.ID,
+		UserID:   u.ID,
+	})
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("Error fetching user review: %v", err)}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
 	returnBody := returnVals{
 		User:        u,
 		Review:      &review,
 		Title:       review.Title.String,
 		AlbumReview: review.Review.String,
+		Shouts:      shouts,
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		returnBody.ShoutUser = &shout_user
 	}
 	if err := tmpl.Execute(w, returnBody); err != nil {
 		http.Error(w, "error rendering template", http.StatusInternalServerError)
 	}
+
 }
