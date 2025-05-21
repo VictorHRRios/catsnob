@@ -202,6 +202,17 @@ func (cfg *ApiConfig) HandlerUserReview(w http.ResponseWriter, r *http.Request, 
 		}
 		return
 	}
+	if u == nil {
+		returnBody := returnVals{
+			User:   u,
+			Review: &review,
+			Shouts: shouts,
+		}
+		if err := tmpl.Execute(w, returnBody); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+		}
+		return
+	}
 	shout_user, err := cfg.Queries.GetShoutByUserReview(context.Background(), database.GetShoutByUserReviewParams{
 		ReviewID: review.ID,
 		UserID:   u.ID,
