@@ -51,6 +51,16 @@ type ArtistFollow struct {
 	ArtistID  uuid.UUID
 }
 
+type Shout struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	ReviewID  uuid.UUID
+	Title     string
+	ShoutText string
+}
+
 type Track struct {
 	ID               uuid.UUID
 	CreatedAt        time.Time
