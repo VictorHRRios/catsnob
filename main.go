@@ -62,9 +62,11 @@ func main() {
 	mux.HandleFunc("GET /admin", apiCfg.AuthMiddleware(apiCfg.HandlerAdminIndex))
 
 	mux.HandleFunc("PUT /app/updateReview", apiCfg.AuthMiddleware(apiCfg.HandlerUpdateReview))
+	mux.HandleFunc("PUT /app/updateShout", apiCfg.AuthMiddleware(apiCfg.HandlerUpdateShout))
 
 	mux.HandleFunc("DELETE /app/deleteReview", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteReview))
 	mux.HandleFunc("DELETE /admin/deleteArtist", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteArtist))
+	mux.HandleFunc("DELETE /app/deleteShout", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteShout))
 
 	mux.HandleFunc("POST /app/createReview", apiCfg.AuthMiddleware(apiCfg.HandlerCreateReview))
 	mux.HandleFunc("POST /app/createReviewLong", apiCfg.AuthMiddleware(apiCfg.HandlerCreateReviewLong))
@@ -72,6 +74,8 @@ func main() {
 	mux.HandleFunc("POST /app/login", apiCfg.HandlerAuthUser)
 	mux.HandleFunc("POST /app/logout", apiCfg.HandlerLogout)
 	mux.HandleFunc("POST /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerCreateArtistDisc))
+
+	mux.HandleFunc("POST /app/createShout", apiCfg.AuthMiddleware(apiCfg.HandlerCreateShout))
 
 	srv := &http.Server{
 		Addr:    ":" + port,

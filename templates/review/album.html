@@ -6,7 +6,7 @@
 <div class="music-profile"> 
 	<div>
 	<a href="/app/album/{{.Review.AlbumID}}">
-		<img src="{{.Review.AlbumImg}}"> 
+		<img src="{{.Review.AlbumImg}}" alt="Album Cover" > 
 	</a>
 	<h2> {{.Review.AlbumName}}</h2>
 	</div>
@@ -27,4 +27,50 @@
         getReview(parseFloat({{.Review.Score}}));
     });
 </script>
+
+{{if and .User .ShoutUser}}
+<!-- Se muestran todos los shouts-->
+		<div class="shout">
+			<h2> My shout</h2>
+			<p>{{.ShoutUser.Title}}</p>
+			<p>{{.ShoutUser.ShoutText}}</p>
+			<div>
+				<button onclick="deleteShout('{{ .ShoutUser.ID }}')">Delete!</button>
+  				<button onclick="showDialog('{{ .ShoutUser.ID }}')">Update!</button>
+			</div>
+		</div>	
+		{{else if .User }}
+	<!-- Se muestran el formulario si el usuario no tiene shouts-->
+		<h2> Leave a shout </h2>
+		<form method="POST" action="/app/createShout">
+			<input type="hidden" name="reviewid" value="{{.Review.ID}}">
+			<label for="title">Title:</label><br>
+			<input type="text" id="title" name="title" maxlength="50" placeholder="Title"><br>
+			<label for="shout_text">Comment:</label><br>
+			<textarea id="shout_text" name="shout_text" rows="3" placeholder="Your comment"></textarea><br>
+			<button type="submit">Enviar Shout</button>
+		</form>
+		{{else}}
+	<!-- No ha iniciado sesión-->
+		<h2> You need to be logged in to leave a shout </h2>
+		<a href="/app/login">Login</a>
+	{{ end }}
+
+{{ if .Shouts }}
+<!-- Se muestra Todos los shouts-->
+	<h2> All Shouts </h2>
+		{{ range .Shouts }}
+			<div class="shout">
+				<a href="/app/user/{{.ID}}">
+					<img src="{{.ImgUrl}}" alt="user image" >
+					<p>{{.Name}}</p>
+				</a>
+				<p>{{.Title}}</p>
+				<p>{{.ShoutText}}</p>
+			</div>
+		{{ end }}
 {{ end }}
+
+<script src="/app/assets/jscript/shouts.js"></script>
+{{ end }}
+
