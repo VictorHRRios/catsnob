@@ -25,6 +25,11 @@ SELECT list.id_playlist_a, list.name_
 FROM user_lists as list
 WHERE list.user_id = $1;
 
+-- name: GetUserAlbumLists :many
+SELECT list.id_playlist_a, list.name_
+FROM user_lists as list
+WHERE list.user_id = $1 AND type_ = 'album';
+
 -- name: GetListName :many
 SELECT list.name_
 FROM user_lists as list
