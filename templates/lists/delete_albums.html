@@ -1,0 +1,36 @@
+{{ define "title" }}Home Page | Delete Albums{{ end }}
+
+{{ define "content" }}
+<div id="content">
+	<div class="header">
+		<a href="/app/home">
+			Artists
+		</a>
+		<a href="/app/home/albums">
+			Albums
+		</a>
+		<a href="/app/home/tracks">
+			Tracks
+		</a>
+        <a href="/app/home/lists" class="selected">
+			Lists
+		</a>
+	</div>
+    <h1> Delete albums from {{.Playlist_name}} </h1>
+    <a style="display: flex; margin-bottom: 20px; width: 6%;" href="/app/lists/edit_list/{{ .PlaylistID }}">Return</a>
+	<form action="/app/delete_albums/{{.PlaylistID}}" method="POST">
+    <button class="button" type="submit">Add Albums!!</button>
+    <div class="table">
+        {{ range .Albums }}
+        <div class="table-elem">
+            <input type="checkbox" name="album_ids" value="{{ .ID }}">
+            <label>
+                <img src="{{ .ImgUrl }}" alt="Album Image"> {{ .Name }}
+            </label>
+        </div>
+        {{ end }}
+    </div>
+</form>
+    <div></div>
+</div>
+{{ end }}

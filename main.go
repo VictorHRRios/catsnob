@@ -50,6 +50,7 @@ func main() {
 	mux.HandleFunc("GET /app/home", apiCfg.AuthMiddleware(apiCfg.HandlerIndex))
 	mux.HandleFunc("GET /app/home/albums", apiCfg.AuthMiddleware(apiCfg.HandlerAlbums))
 	mux.HandleFunc("GET /app/home/tracks", apiCfg.AuthMiddleware(apiCfg.HandlerTracks))
+	mux.HandleFunc("GET /app/home/lists", apiCfg.AuthMiddleware(apiCfg.HandlerLists))
 	mux.HandleFunc("GET /app/join", handlers.HandlerJoin)
 	mux.HandleFunc("GET /app/login", handlers.HandlerLogin)
 	mux.HandleFunc("GET /app/user/{username}", apiCfg.AuthMiddleware(apiCfg.HandlerUserProfile))
@@ -57,6 +58,11 @@ func main() {
 	mux.HandleFunc("GET /app/artist/{artistid}", apiCfg.AuthMiddleware(apiCfg.HandlerArtistProfile))
 	mux.HandleFunc("GET /app/album/{albumid}", apiCfg.AuthMiddleware(apiCfg.HandlerAlbum))
 	mux.HandleFunc("GET /app/track/{trackid}", apiCfg.AuthMiddleware(apiCfg.HandlerTrack))
+	mux.HandleFunc("GET /app/lists/create_list", apiCfg.AuthMiddleware(apiCfg.HandlerCreate_List))
+	mux.HandleFunc("GET /app/lists/edit_list/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerEdit_List))
+	mux.HandleFunc("GET /app/lists/add_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerAdd_Albums))
+	mux.HandleFunc("GET /app/lists/delete_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerDelete_Albums))
+	mux.HandleFunc("GET /app/delete_list/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteList))
 
 	mux.HandleFunc("GET /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerFormArtistDisc))
 	mux.HandleFunc("GET /admin", apiCfg.AuthMiddleware(apiCfg.HandlerAdminIndex))
@@ -74,6 +80,9 @@ func main() {
 	mux.HandleFunc("POST /app/login", apiCfg.HandlerAuthUser)
 	mux.HandleFunc("POST /app/logout", apiCfg.HandlerLogout)
 	mux.HandleFunc("POST /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerCreateArtistDisc))
+	mux.HandleFunc("POST /app/add_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerAddAlbumsToList))
+	mux.HandleFunc("POST /app/delete_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteAlbumsFromList))
+	mux.HandleFunc("POST /app/createAlbumList", apiCfg.AuthMiddleware(apiCfg.HandlerCreateAlbumList))
 
 	mux.HandleFunc("POST /app/createShout", apiCfg.AuthMiddleware(apiCfg.HandlerCreateShout))
 

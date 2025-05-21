@@ -68,9 +68,10 @@ a {
 
 }
 
+/* Modificar para agregar una nueva columna lista */
 div.header {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   border-bottom: 1px   solid gray;
   min-height: 2rem;
   margin: 0rem 0rem 1rem 0rem;
@@ -311,3 +312,42 @@ nav .profile-img {
     font-size: 0.95rem;
     line-height: 1.4;
   }
+
+  
+.table-lists {
+    display: flex;
+    flex-direction: column; /* Cambia la dirección a vertical */
+    gap: 10px; /* Espacio entre elementos */
+    width: 50%;
+    margin: auto;
+}
+
+.table-edit {
+    display: flex;
+    gap: 100px; /* Espacio entre elementos */
+    width: 70%;
+    margin: auto;
+    margin-bottom: 25px;
+}
+
+.table-elem {
+    display: block;
+    margin-bottom: 10px; /* Espacio entre listas */
+}
+
+.button {
+  background-color: #5a0000; 
+  color: #f8f8de; 
+  font-family: 'Comic Sans MS', sans-serif; 
+  font-size: 16px; 
+  padding: 10px 16px;
+  border: none; 
+  border-radius: 15px;
+  margin-bottom: 20px;
+  cursor: pointer; 
+  transition: background-color 0.3s ease; 
+}
+
+.button:hover {
+  background-color: #770000; /* Cambio de color al pasar el cursor */
+}
