@@ -1,0 +1,35 @@
+{{ define "title" }}Home Page | Add Albums{{ end }}
+
+{{ define "content" }}
+<div id="content">
+	<div class="header">
+		<a href="/app/home">
+			Artists
+		</a>
+		<a href="/app/home/albums">
+			Albums
+		</a>
+		<a href="/app/home/tracks">
+			Tracks
+		</a>
+        <a href="/app/home/lists" class="selected">
+			Lists
+		</a>
+	</div>
+    <h1> Add new albums </h1>
+	<form action="/app/add_albums/{{.PlaylistID}}" method="POST">
+    <div class="table">
+        {{ range .Albums }}
+        <div class="table-elem">
+            <input type="checkbox" name="album_ids" value="{{ .ID }}">
+            <label>
+                <img src="{{ .ImgUrl }}" alt="Album Image"> {{ .Name }}
+            </label>
+        </div>
+        {{ end }}
+    </div>
+    <button class="button" type="submit">Add Albums!!</button>
+</form>
+    <div></div>
+</div>
+{{ end }}

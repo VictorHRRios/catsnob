@@ -131,7 +131,7 @@ func (cfg *ApiConfig) HandlerAdd_Albums(w http.ResponseWriter, r *http.Request, 
 	fmt.Println("HandlerAdd_Albums ejecutado")
 	type returnVals struct {
 		Stylesheet    *string
-		Albums        []database.Album
+		Albums        []database.GetAlbumsNotInListRow
 		Playlist_name string
 		PlaylistID    string
 		User          *database.User
@@ -156,7 +156,7 @@ func (cfg *ApiConfig) HandlerAdd_Albums(w http.ResponseWriter, r *http.Request, 
 
 	list_name, _ := cfg.Queries.GetListName(context.Background(), listID)
 
-	albums, err := cfg.Queries.GetAlbums(context.Background())
+	albums, err := cfg.Queries.GetAlbumsNotInList(context.Background(), listID)
 	if err != nil || len(albums) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		tmpl.Execute(w, returnVals{PlaylistID: listID.String(), Error: "No albums found"})
@@ -182,12 +182,6 @@ func (cfg *ApiConfig) HandlerAdd_Albums(w http.ResponseWriter, r *http.Request, 
 
 func (cfg *ApiConfig) HandlerAddAlbumsToList(w http.ResponseWriter, r *http.Request, u *database.User) {
 	fmt.Println("HandlerAddAlbumsToList ejecutado")
-	type returnVals struct {
-		Error      string
-		Stylesheet *string
-		User       *database.User
-		List       *database.AlbumList
-	}
 
 	err := r.ParseForm() // Analizo los datos del formulario
 	if err != nil {
@@ -204,6 +198,8 @@ func (cfg *ApiConfig) HandlerAddAlbumsToList(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	fmt.Println("Albums recibidos", albums)
+
 	for _, albumID := range albums {
 		aid, _ := uuid.Parse(albumID)
 		a, err := cfg.Queries.AddAlbumToList(context.Background(), database.AddAlbumToListParams{
@@ -215,5 +211,5 @@ func (cfg *ApiConfig) HandlerAddAlbumsToList(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/app/edit_list/%v", listID), http.StatusFound)
+	http.Redirect(w, r, fmt.Sprintf("/app/lists/edit_list/%v", listID), http.StatusFound)
 }

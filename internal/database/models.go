@@ -29,12 +29,6 @@ type AlbumList struct {
 	Title     sql.NullString
 }
 
-type AlbumListsRelkey struct {
-	ID           uuid.UUID
-	AlbumListsID uuid.UUID
-	AlbumID      uuid.UUID
-}
-
 type AlbumReview struct {
 	ID        uuid.UUID
 	CreatedAt time.Time
@@ -44,6 +38,12 @@ type AlbumReview struct {
 	Title     sql.NullString
 	Review    sql.NullString
 	Score     string
+}
+
+type AlbumlistsAlbum struct {
+	ID           uuid.UUID
+	AlbumListsID uuid.UUID
+	AlbumID      uuid.UUID
 }
 
 type Artist struct {

@@ -12,6 +12,28 @@ import (
 	"github.com/google/uuid"
 )
 
+const addAlbumToList = `-- name: AddAlbumToList :one
+insert into AlbumLists_Albums (id, album_lists_id,album_id)
+values (
+	gen_random_uuid(),
+	$1,
+	$2
+)
+returning id, album_lists_id, album_id
+`
+
+type AddAlbumToListParams struct {
+	AlbumListsID uuid.UUID
+	AlbumID      uuid.UUID
+}
+
+func (q *Queries) AddAlbumToList(ctx context.Context, arg AddAlbumToListParams) (AlbumlistsAlbum, error) {
+	row := q.db.QueryRowContext(ctx, addAlbumToList, arg.AlbumListsID, arg.AlbumID)
+	var i AlbumlistsAlbum
+	err := row.Scan(&i.ID, &i.AlbumListsID, &i.AlbumID)
+	return i, err
+}
+
 const createAlbumList = `-- name: CreateAlbumList :one
 insert into album_lists (id, created_at, updated_at, user_id, title)
 values (
@@ -42,34 +64,11 @@ func (q *Queries) CreateAlbumList(ctx context.Context, arg CreateAlbumListParams
 	return i, err
 }
 
-const createAlbumList_relKey = `-- name: CreateAlbumList_relKey :one
-insert into album_lists_relKey (id, album_lists_id,album_id)
-values (
-	gen_random_uuid(),
-	$1,
-	$2
-)
-returning id, album_lists_id, album_id
-`
-
-type CreateAlbumList_relKeyParams struct {
-	AlbumListsID uuid.UUID
-	AlbumID      uuid.UUID
-}
-
-func (q *Queries) CreateAlbumList_relKey(ctx context.Context, arg CreateAlbumList_relKeyParams) (AlbumListsRelkey, error) {
-	row := q.db.QueryRowContext(ctx, createAlbumList_relKey, arg.AlbumListsID, arg.AlbumID)
-	var i AlbumListsRelkey
-	err := row.Scan(&i.ID, &i.AlbumListsID, &i.AlbumID)
-	return i, err
-}
-
 const getAlbumsFromList = `-- name: GetAlbumsFromList :many
-SELECT albums.id, albums.name, albums.img_url
-FROM album_lists
-JOIN album_lists_relKey ON album_lists.id = album_lists_relKey.album_lists_id
-JOIN albums ON albums.id = album_lists_relKey.album_id
-WHERE album_lists.user_id = $1
+SELECT a.id, a.name, a.img_url
+FROM albums as a
+JOIN AlbumLists_Albums as ala ON a.id = ala.album_id
+WHERE ala.album_lists_id = $1
 `
 
 type GetAlbumsFromListRow struct {
@@ -78,8 +77,8 @@ type GetAlbumsFromListRow struct {
 	ImgUrl string
 }
 
-func (q *Queries) GetAlbumsFromList(ctx context.Context, userID uuid.UUID) ([]GetAlbumsFromListRow, error) {
-	rows, err := q.db.QueryContext(ctx, getAlbumsFromList, userID)
+func (q *Queries) GetAlbumsFromList(ctx context.Context, albumListsID uuid.UUID) ([]GetAlbumsFromListRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAlbumsFromList, albumListsID)
 	if err != nil {
 		return nil, err
 	}
@@ -91,6 +90,74 @@ func (q *Queries) GetAlbumsFromList(ctx context.Context, userID uuid.UUID) ([]Ge
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAlbumsNotInList = `-- name: GetAlbumsNotInList :many
+SELECT a.id, a.name, a.img_url
+FROM albums as a
+WHERE id NOT IN (
+	SELECT album_id 
+	FROM AlbumLists_Albums
+	WHERE album_lists_id = $1
+)
+`
+
+type GetAlbumsNotInListRow struct {
+	ID     uuid.UUID
+	Name   string
+	ImgUrl string
+}
+
+func (q *Queries) GetAlbumsNotInList(ctx context.Context, albumListsID uuid.UUID) ([]GetAlbumsNotInListRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAlbumsNotInList, albumListsID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAlbumsNotInListRow
+	for rows.Next() {
+		var i GetAlbumsNotInListRow
+		if err := rows.Scan(&i.ID, &i.Name, &i.ImgUrl); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getListName = `-- name: GetListName :many
+SELECT list.title
+FROM album_lists as list
+WHERE list.id = $1
+`
+
+func (q *Queries) GetListName(ctx context.Context, id uuid.UUID) ([]sql.NullString, error) {
+	rows, err := q.db.QueryContext(ctx, getListName, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []sql.NullString
+	for rows.Next() {
+		var title sql.NullString
+		if err := rows.Scan(&title); err != nil {
+			return nil, err
+		}
+		items = append(items, title)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

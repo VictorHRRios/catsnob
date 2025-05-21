@@ -9,8 +9,8 @@ values (
 )
 returning *;
 
--- name: CreateAlbumList_relKey :one
-insert into album_lists_relKey (id, album_lists_id,album_id)
+-- name: AddAlbumToList :one
+insert into AlbumLists_Albums (id, album_lists_id,album_id)
 values (
 	gen_random_uuid(),
 	$1,
@@ -23,9 +23,22 @@ SELECT list.id, list.title
 FROM album_lists as list
 WHERE list.user_id = $1;
 
+-- name: GetListName :many
+SELECT list.title
+FROM album_lists as list
+WHERE list.id = $1;
+
 -- name: GetAlbumsFromList :many
-SELECT albums.id, albums.name, albums.img_url
-FROM album_lists
-JOIN album_lists_relKey ON album_lists.id = album_lists_relKey.album_lists_id
-JOIN albums ON albums.id = album_lists_relKey.album_id
-WHERE album_lists.user_id = $1;
+SELECT a.id, a.name, a.img_url
+FROM albums as a
+JOIN AlbumLists_Albums as ala ON a.id = ala.album_id
+WHERE ala.album_lists_id = $1;
+
+-- name: GetAlbumsNotInList :many
+SELECT a.id, a.name, a.img_url
+FROM albums as a
+WHERE id NOT IN (
+	SELECT album_id 
+	FROM AlbumLists_Albums
+	WHERE album_lists_id = $1
+);

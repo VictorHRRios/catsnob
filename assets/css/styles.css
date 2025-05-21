@@ -192,7 +192,32 @@ nav .profile-img {
     margin: auto;
 }
 
+.table-edit {
+    display: flex;
+    gap: 100px; /* Espacio entre elementos */
+    width: 70%;
+    margin: auto;
+    margin-bottom: 25px;
+}
+
 .table-elem {
     display: block;
     margin-bottom: 10px; /* Espacio entre listas */
+}
+
+.button {
+  background-color: #5a0000; 
+  color: #f8f8de; 
+  font-family: 'Comic Sans MS', sans-serif; 
+  font-size: 16px; 
+  padding: 10px 16px;
+  border: none; 
+  border-radius: 15px;
+  margin-bottom: 20px;
+  cursor: pointer; 
+  transition: background-color 0.3s ease; 
+}
+
+.button:hover {
+  background-color: #770000; /* Cambio de color al pasar el cursor */
 }

@@ -8,7 +8,7 @@ create table album_lists(
     foreign key (user_id) references users(id) on delete cascade
 );
 
-create table album_lists_relKey(
+create table AlbumLists_Albums(
     id uuid primary key,
     album_lists_id uuid not null,
     album_id uuid not null,
