@@ -78,6 +78,13 @@ type Track struct {
 	AlbumID          uuid.UUID
 }
 
+type TrackList struct {
+	ID          uuid.UUID
+	AddedAt     sql.NullTime
+	UserListsID uuid.UUID
+	TrackID     uuid.UUID
+}
+
 type User struct {
 	ID             uuid.UUID
 	CreatedAt      time.Time

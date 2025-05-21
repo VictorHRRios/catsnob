@@ -204,6 +204,40 @@ func (q *Queries) GetListName(ctx context.Context, idPlaylistA uuid.UUID) ([]sql
 	return items, nil
 }
 
+const getUserAlbumLists = `-- name: GetUserAlbumLists :many
+SELECT list.id_playlist_a, list.name_
+FROM user_lists as list
+WHERE list.user_id = $1 AND type_ = 'album'
+`
+
+type GetUserAlbumListsRow struct {
+	IDPlaylistA uuid.UUID
+	Name        sql.NullString
+}
+
+func (q *Queries) GetUserAlbumLists(ctx context.Context, userID uuid.UUID) ([]GetUserAlbumListsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserAlbumLists, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserAlbumListsRow
+	for rows.Next() {
+		var i GetUserAlbumListsRow
+		if err := rows.Scan(&i.IDPlaylistA, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserLists = `-- name: GetUserLists :many
 SELECT list.id_playlist_a, list.name_
 FROM user_lists as list
