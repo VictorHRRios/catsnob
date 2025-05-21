@@ -65,7 +65,7 @@ func (cfg *ApiConfig) HandlerEdit_List(w http.ResponseWriter, r *http.Request, u
 	albums, err := cfg.Queries.GetAlbumsFromList(context.Background(), listID)
 	if err != nil || len(albums) == 0 {
 		w.WriteHeader(http.StatusNotFound)
-		tmpl.Execute(w, returnVals{PlaylistID: listID.String(), Error: "No albums found"})
+		tmpl.Execute(w, returnVals{PlaylistID: listID.String(), User: u, Error: "No albums found"})
 		return
 	}
 	fmt.Println("Lista de álbumes obtenidas en edit_list:", albums)
@@ -96,7 +96,7 @@ func (cfg *ApiConfig) HandlerCreateAlbumList(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	tmplPath := filepath.Join("templates", "home", "create_list.html")
+	tmplPath := filepath.Join("templates", "lists", "create_list.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
 	if err != nil {
 		http.Error(w, "error parsing files", http.StatusInternalServerError)
@@ -127,7 +127,61 @@ func (cfg *ApiConfig) HandlerCreateAlbumList(w http.ResponseWriter, r *http.Requ
 	http.Redirect(w, r, fmt.Sprintf("/app/edit_list/%v", newList.ID), http.StatusFound)
 }
 
-func (cfg *ApiConfig) HandlerAddAlbumList(w http.ResponseWriter, r *http.Request, u *database.User) {
+func (cfg *ApiConfig) HandlerAdd_Albums(w http.ResponseWriter, r *http.Request, u *database.User) {
+	fmt.Println("HandlerAdd_Albums ejecutado")
+	type returnVals struct {
+		Stylesheet    *string
+		Albums        []database.Album
+		Playlist_name string
+		PlaylistID    string
+		User          *database.User
+		Error         string
+	}
+	tmplPath := filepath.Join("templates", "lists", "add_albums.html")
+	tmpl, err := template.ParseFiles(layout, tmplPath)
+	if err != nil {
+		http.Error(w, "error parsing files", http.StatusInternalServerError)
+		return
+	}
+
+	listID, err := uuid.Parse(r.PathValue("listid"))
+
+	if err != nil {
+		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	list_name, _ := cfg.Queries.GetListName(context.Background(), listID)
+
+	albums, err := cfg.Queries.GetAlbums(context.Background())
+	if err != nil || len(albums) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		tmpl.Execute(w, returnVals{PlaylistID: listID.String(), Error: "No albums found"})
+		return
+	}
+
+	fmt.Println("Nombre de la lista", list_name)
+	fmt.Println("Albumes", albums)
+
+	respBody := returnVals{
+		Stylesheet:    nil,
+		Albums:        albums,
+		Playlist_name: list_name[0].String,
+		PlaylistID:    listID.String(),
+		User:          u,
+	}
+	if err := tmpl.Execute(w, respBody); err != nil {
+		http.Error(w, "error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+}
+
+func (cfg *ApiConfig) HandlerAddAlbumsToList(w http.ResponseWriter, r *http.Request, u *database.User) {
+	fmt.Println("HandlerAddAlbumsToList ejecutado")
 	type returnVals struct {
 		Error      string
 		Stylesheet *string
@@ -135,32 +189,31 @@ func (cfg *ApiConfig) HandlerAddAlbumList(w http.ResponseWriter, r *http.Request
 		List       *database.AlbumList
 	}
 
-	if u == nil {
-		http.Error(w, "User is not authenticated", http.StatusUnauthorized)
+	err := r.ParseForm() // Analizo los datos del formulario
+	if err != nil {
+		http.Error(w, "Error form not complete", http.StatusBadRequest)
 		return
 	}
 
-	tmplPath := filepath.Join("templates", "home", "edit_list.html")
-	tmpl, err := template.ParseFiles(layout, tmplPath)
-	if err != nil {
-		http.Error(w, "error parsing files", http.StatusInternalServerError)
+	listID, err := uuid.Parse(r.PathValue("listid"))
+
+	albums := r.Form["album_ids"]
+
+	if len(albums) == 0 {
+		http.Error(w, "Error albums selecteds can not be null", http.StatusBadRequest)
 		return
 	}
 
-	// albumid := r.FormValue("albumID")
-
-	newList, err := cfg.Queries.CreateAlbumList(context.Background(), database.CreateAlbumListParams{
-		UserID: u.ID,
-		// Title:  sql.NullString{String: title, Valid: title != ""},
-	})
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		if err := tmpl.Execute(w, returnVals{Error: fmt.Sprintf("%v", err)}); err != nil {
-			http.Error(w, "error parsing files", http.StatusInternalServerError)
-			return
+	for _, albumID := range albums {
+		aid, _ := uuid.Parse(albumID)
+		a, err := cfg.Queries.AddAlbumToList(context.Background(), database.AddAlbumToListParams{
+			AlbumListsID: listID,
+			AlbumID:      aid,
+		})
+		if err == nil {
+			fmt.Println("Album correctamente agregado: ", a)
 		}
-		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/app/edit_list/%v/%v", newList.ID, true), http.StatusFound)
+	http.Redirect(w, r, fmt.Sprintf("/app/edit_list/%v", listID), http.StatusFound)
 }
