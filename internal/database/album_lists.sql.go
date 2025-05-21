@@ -90,6 +90,16 @@ func (q *Queries) DeleteAlbumFromList(ctx context.Context, arg DeleteAlbumFromLi
 	return err
 }
 
+const deleteList = `-- name: DeleteList :exec
+DELETE FROM user_lists
+WHERE id_playlist_a = $1
+`
+
+func (q *Queries) DeleteList(ctx context.Context, idPlaylistA uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteList, idPlaylistA)
+	return err
+}
+
 const getAlbumsFromList = `-- name: GetAlbumsFromList :many
 SELECT a.id, a.name, a.img_url
 FROM albums as a

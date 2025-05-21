@@ -62,6 +62,7 @@ func main() {
 	mux.HandleFunc("GET /app/lists/edit_list/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerEdit_List))
 	mux.HandleFunc("GET /app/lists/add_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerAdd_Albums))
 	mux.HandleFunc("GET /app/lists/delete_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerDelete_Albums))
+	mux.HandleFunc("GET /app/delete_list/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteList))
 
 	mux.HandleFunc("GET /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerFormArtistDisc))
 	mux.HandleFunc("GET /admin", apiCfg.AuthMiddleware(apiCfg.HandlerAdminIndex))

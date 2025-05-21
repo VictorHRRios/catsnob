@@ -98,7 +98,7 @@ func (cfg *ApiConfig) HandlerCreateAlbumList(w http.ResponseWriter, r *http.Requ
 		http.Error(w, "Error creating new user list", http.StatusBadRequest)
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/app/edit_list/%v", newList.IDPlaylistA), http.StatusFound)
+	http.Redirect(w, r, fmt.Sprintf("/app/lists/edit_list/%v", newList.IDPlaylistA), http.StatusFound)
 }
 
 func (cfg *ApiConfig) HandlerAdd_Albums(w http.ResponseWriter, r *http.Request, u *database.User) {
@@ -273,4 +273,22 @@ func (cfg *ApiConfig) HandlerDeleteAlbumsFromList(w http.ResponseWriter, r *http
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/app/lists/edit_list/%v", listID), http.StatusFound)
+}
+
+func (cfg *ApiConfig) HandlerDeleteList(w http.ResponseWriter, r *http.Request, u *database.User) {
+	fmt.Println("HandlerDeleteList ejecutado")
+
+	listID, err := uuid.Parse(r.PathValue("listid"))
+
+	if err != nil {
+		http.Error(w, "Error list id can not be null", http.StatusBadRequest)
+		return
+	}
+
+	err = cfg.Queries.DeleteList(context.Background(), listID)
+	if err == nil {
+		fmt.Println("Lista correctamente elimiando.")
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/app/home/lists"), http.StatusFound)
 }

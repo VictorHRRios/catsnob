@@ -17,7 +17,9 @@
 		</a>
 	</div>
     <h1> Add new albums to the {{.Playlist_name}}</h1>
+    <a style="display: flex; margin-bottom: 20px; width: 6%;" href="/app/lists/edit_list/{{ .PlaylistID }}">Return</a>
 	<form action="/app/add_albums/{{.PlaylistID}}" method="POST">
+    <button class="button" type="submit">Add Albums!!</button>
     <div class="table">
         {{ range .Albums }}
         <div class="table-elem">
@@ -28,7 +30,6 @@
         </div>
         {{ end }}
     </div>
-    <button class="button" type="submit">Add Albums!!</button>
 </form>
     <div></div>
 </div>
