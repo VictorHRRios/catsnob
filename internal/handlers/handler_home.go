@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"path/filepath"
 
@@ -95,6 +96,7 @@ func (cfg *ApiConfig) HandlerTracks(w http.ResponseWriter, r *http.Request, u *d
 
 	tracks, err := cfg.Queries.GetTracks(context.Background())
 	if err != nil {
+		log.Print(err)
 		if err := tmpl.Execute(w, returnVals{Error: "Could not fetch tracks"}); err != nil {
 			http.Error(w, "error rendering template", http.StatusInternalServerError)
 			return

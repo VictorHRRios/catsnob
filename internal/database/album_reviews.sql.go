@@ -7,13 +7,12 @@ package database
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-const createReviewLong = `-- name: CreateReviewLong :one
+const createReview = `-- name: CreateReview :one
 insert into album_reviews (id, created_at, updated_at, user_id, album_id, title, review, score)
 values (
 	gen_random_uuid(),
@@ -28,59 +27,22 @@ values (
 returning id, created_at, updated_at, user_id, album_id, title, review, score
 `
 
-type CreateReviewLongParams struct {
+type CreateReviewParams struct {
 	UserID  uuid.UUID
 	AlbumID uuid.UUID
-	Title   sql.NullString
-	Review  sql.NullString
+	Title   string
+	Review  string
 	Score   string
 }
 
-func (q *Queries) CreateReviewLong(ctx context.Context, arg CreateReviewLongParams) (AlbumReview, error) {
-	row := q.db.QueryRowContext(ctx, createReviewLong,
+func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (AlbumReview, error) {
+	row := q.db.QueryRowContext(ctx, createReview,
 		arg.UserID,
 		arg.AlbumID,
 		arg.Title,
 		arg.Review,
 		arg.Score,
 	)
-	var i AlbumReview
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.UserID,
-		&i.AlbumID,
-		&i.Title,
-		&i.Review,
-		&i.Score,
-	)
-	return i, err
-}
-
-const createReviewShort = `-- name: CreateReviewShort :one
-insert into album_reviews (id, created_at, updated_at, user_id, album_id, title, review, score)
-values (
-	gen_random_uuid(),
-	NOW(),
-	NOW(),
-	$1,
-	$2,
-	NULL,
-	NULL,
-	$3
-)
-returning id, created_at, updated_at, user_id, album_id, title, review, score
-`
-
-type CreateReviewShortParams struct {
-	UserID  uuid.UUID
-	AlbumID uuid.UUID
-	Score   string
-}
-
-func (q *Queries) CreateReviewShort(ctx context.Context, arg CreateReviewShortParams) (AlbumReview, error) {
-	row := q.db.QueryRowContext(ctx, createReviewShort, arg.UserID, arg.AlbumID, arg.Score)
 	var i AlbumReview
 	err := row.Scan(
 		&i.ID,
@@ -119,8 +81,8 @@ type GetReviewRow struct {
 	UpdatedAt time.Time
 	UserID    uuid.UUID
 	AlbumID   uuid.UUID
-	Title     sql.NullString
-	Review    sql.NullString
+	Title     string
+	Review    string
 	Score     string
 	AlbumID_2 uuid.UUID
 	AlbumName string
@@ -149,19 +111,34 @@ func (q *Queries) GetReview(ctx context.Context, id uuid.UUID) (GetReviewRow, er
 }
 
 const getReviewByAlbum = `-- name: GetReviewByAlbum :many
-select id, created_at, updated_at, user_id, album_id, title, review, score from album_reviews
-where album_id = $1
+select album_reviews.id, album_reviews.created_at, album_reviews.updated_at, album_reviews.user_id, album_reviews.album_id, album_reviews.title, album_reviews.review, album_reviews.score, users.name, users.img_url
+from album_reviews
+join users on users.id = album_reviews.user_id
+where album_reviews.album_id = $1
 `
 
-func (q *Queries) GetReviewByAlbum(ctx context.Context, albumID uuid.UUID) ([]AlbumReview, error) {
+type GetReviewByAlbumRow struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	AlbumID   uuid.UUID
+	Title     string
+	Review    string
+	Score     string
+	Name      string
+	ImgUrl    string
+}
+
+func (q *Queries) GetReviewByAlbum(ctx context.Context, albumID uuid.UUID) ([]GetReviewByAlbumRow, error) {
 	rows, err := q.db.QueryContext(ctx, getReviewByAlbum, albumID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []AlbumReview
+	var items []GetReviewByAlbumRow
 	for rows.Next() {
-		var i AlbumReview
+		var i GetReviewByAlbumRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CreatedAt,
@@ -171,6 +148,8 @@ func (q *Queries) GetReviewByAlbum(ctx context.Context, albumID uuid.UUID) ([]Al
 			&i.Title,
 			&i.Review,
 			&i.Score,
+			&i.Name,
+			&i.ImgUrl,
 		); err != nil {
 			return nil, err
 		}
@@ -198,8 +177,8 @@ type GetReviewByUserRow struct {
 	UpdatedAt time.Time
 	UserID    uuid.UUID
 	AlbumID   uuid.UUID
-	Title     sql.NullString
-	Review    sql.NullString
+	Title     string
+	Review    string
 	Score     string
 	ID_2      uuid.UUID
 	Name      string
@@ -278,8 +257,8 @@ id = $4
 `
 
 type UpdateReviewParams struct {
-	Title  sql.NullString
-	Review sql.NullString
+	Title  string
+	Review string
 	Score  string
 	ID     uuid.UUID
 }

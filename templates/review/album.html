@@ -6,12 +6,84 @@
 <div class="music-profile"> 
 	<div>
 	<a href="/app/album/{{.Review.AlbumID}}">
-		<img src="{{.Review.AlbumImg}}"> 
+		<img src="{{.Review.AlbumImg}}" alt="Album Cover" > 
 	</a>
 	<h2> {{.Review.AlbumName}}</h2>
 	</div>
-	{{.Review.Score}}
-	{{ .Title }}
-	{{ .AlbumReview }}
+	<div class="review">
+	<h2>
+	{{ .Review.Title }}
+	</h2>
+	<p id="score">
+	</p>
+	<p>
+	{{ .Review.Review }}
+	</p>
+	</div>
 </div>
+<script src="/app/assets/jscript/reviews.js"></script>
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		getReview(parseFloat("{{.Review.Score}}"));
+	});
+</script>
+
+{{if and .User .ShoutUser}}
+<!-- Se muestran todos los shouts-->
+					<div>
+					<h2>My shout</h2>
+					<p>{{.ShoutUser.Title}}</p>
+					<p>{{.ShoutUser.ShoutText}}</p>
+					</div>
+					<button onclick="deleteShout('{{ .ShoutUser.ID }}')">Delete!</button>
+					<button onclick="showDialog('{{ .ShoutUser.ID }}')">Update!</button>
+						
+						<div id="updateDialog" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); z-index:1000;">
+							<h3>Update your Shout</h3>
+							<label for="title">Title:</label><br>
+							<input type="text" id="title" placeholder="New title"><br>
+							<label for="shout_text">Comment:</label><br>
+							<textarea id="shout_text" rows="4" placeholder="New comment"></textarea><br><br>
+							<button onclick="submitUpdate()">Save</button>
+							<button onclick="closeDialog()">Cancel</button>
+						</div>
+		{{else if .User }}
+	<!-- Se muestran el formulario si el usuario no tiene shouts-->
+		<h2> Leave a shout </h2>
+		<form method="POST" action="/app/createShout">
+			<input type="hidden" name="reviewid" value="{{.Review.ID}}">
+			<label for="title">Title:</label><br>
+			<input type="text" id="title" name="title" maxlength="50" placeholder="Title"><br>
+			<label for="shout_text">Comment:</label><br>
+			<textarea id="shout_text" name="shout_text" rows="3" placeholder="Your comment"></textarea><br>
+			<button type="submit">Enviar Shout</button>
+		</form>
+		{{else}}
+	<!-- No ha iniciado sesión-->
+		<h2> You need to be logged in to leave a shout </h2>
+		<a href="/app/login">Login</a>
+	{{ end }}
+
+{{ if .Shouts }}
+<!-- Se muestra Todos los shouts-->
+	<h2> All Shouts </h2>
+		{{ range .Shouts }}
+		<div class="shout-container">
+			<div class="shout">
+			<div class="shout-left">
+				<a href="/app/user/{{.ID}}">
+				<img src="{{.ImgUrl}}" alt="user image">
+				</a>
+			</div>
+			<div class="shout-right">
+				<p class="name">{{.Name}}</p>
+				<p class="title">{{.Title}}</p>
+				<p class="text">{{.ShoutText}}</p>
+			</div>
+			</div>
+		</div>
+		{{ end }}
 {{ end }}
+<script src="/app/assets/jscript/shouts.js"></script>
+{{ end }}
+

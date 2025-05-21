@@ -59,6 +59,11 @@ func GetAlbums(artistId *string) (ArtistAlbums, error) {
 	if err := json.Unmarshal(body, &albumsDetail); err != nil {
 		return ArtistAlbums{}, err
 	}
+	for key := range albumsDetail.Album {
+		if len(albumsDetail.Album[key].StrAlbumThumb) == 0 {
+			albumsDetail.Album[key].StrAlbumThumb = "/app/assets/images/not_available.png"
+		}
+	}
 	return albumsDetail, nil
 }
 

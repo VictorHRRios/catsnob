@@ -33,8 +33,8 @@ type AlbumReview struct {
 	UpdatedAt time.Time
 	UserID    uuid.UUID
 	AlbumID   uuid.UUID
-	Title     sql.NullString
-	Review    sql.NullString
+	Title     string
+	Review    string
 	Score     string
 }
 
@@ -55,6 +55,16 @@ type ArtistFollow struct {
 	UpdatedAt time.Time
 	UserID    uuid.UUID
 	ArtistID  uuid.UUID
+}
+
+type Shout struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	ReviewID  uuid.UUID
+	Title     string
+	ShoutText string
 }
 
 type Track struct {

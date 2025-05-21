@@ -1,18 +1,4 @@
--- name: CreateReviewShort :one
-insert into album_reviews (id, created_at, updated_at, user_id, album_id, title, review, score)
-values (
-	gen_random_uuid(),
-	NOW(),
-	NOW(),
-	$1,
-	$2,
-	NULL,
-	NULL,
-	$3
-)
-returning *;
-
--- name: CreateReviewLong :one
+-- name: CreateReview :one
 insert into album_reviews (id, created_at, updated_at, user_id, album_id, title, review, score)
 values (
 	gen_random_uuid(),
@@ -37,8 +23,10 @@ join albums on albums.id = album_reviews.album_id
 where user_id = $1;
 
 -- name: GetReviewByAlbum :many
-select * from album_reviews
-where album_id = $1;
+select album_reviews.*, users.name, users.img_url
+from album_reviews
+join users on users.id = album_reviews.user_id
+where album_reviews.album_id = $1;
 
 -- name: GetReview :one
 select album_reviews.*, albums.id as album_id, albums.name as album_name, albums.img_url as album_img, users.name as username

@@ -67,19 +67,23 @@ func main() {
 	mux.HandleFunc("GET /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerFormArtistDisc))
 	mux.HandleFunc("GET /admin", apiCfg.AuthMiddleware(apiCfg.HandlerAdminIndex))
 
-	mux.HandleFunc("PUT /app/updateAlbumReview", apiCfg.AuthMiddleware(apiCfg.HandlerUpdateAlbumReview))
+	mux.HandleFunc("PUT /app/updateReview", apiCfg.AuthMiddleware(apiCfg.HandlerUpdateReview))
+	mux.HandleFunc("PUT /app/updateShout", apiCfg.AuthMiddleware(apiCfg.HandlerUpdateShout))
 
-	mux.HandleFunc("DELETE /app/deleteAlbumReview", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteAlbumReview))
+	mux.HandleFunc("DELETE /app/deleteReview", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteReview))
 	mux.HandleFunc("DELETE /admin/deleteArtist", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteArtist))
+	mux.HandleFunc("DELETE /app/deleteShout", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteShout))
 
-	mux.HandleFunc("POST /app/createAlbumReview", apiCfg.AuthMiddleware(apiCfg.HandlerCreateAlbumReview))
-	mux.HandleFunc("POST /app/createAlbumList", apiCfg.AuthMiddleware(apiCfg.HandlerCreateAlbumList))
-	mux.HandleFunc("POST /app/add_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerAddAlbumsToList))
-	mux.HandleFunc("POST /app/delete_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteAlbumsFromList))
+	mux.HandleFunc("POST /app/createReview", apiCfg.AuthMiddleware(apiCfg.HandlerCreateReview))
+	mux.HandleFunc("POST /app/createReviewLong", apiCfg.AuthMiddleware(apiCfg.HandlerCreateReviewLong))
 	mux.HandleFunc("POST /app/join", apiCfg.HandlerCreateUser)
 	mux.HandleFunc("POST /app/login", apiCfg.HandlerAuthUser)
 	mux.HandleFunc("POST /app/logout", apiCfg.HandlerLogout)
 	mux.HandleFunc("POST /admin/createArtistDisc", apiCfg.AuthMiddleware(apiCfg.HandlerCreateArtistDisc))
+	mux.HandleFunc("POST /app/add_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerAddAlbumsToList))
+	mux.HandleFunc("POST /app/delete_albums/{listid}", apiCfg.AuthMiddleware(apiCfg.HandlerDeleteAlbumsFromList))
+
+	mux.HandleFunc("POST /app/createShout", apiCfg.AuthMiddleware(apiCfg.HandlerCreateShout))
 
 	srv := &http.Server{
 		Addr:    ":" + port,
