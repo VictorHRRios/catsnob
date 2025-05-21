@@ -16,27 +16,36 @@
 			Lists
 		</a>
 	</div>
-    <h1>Hola</h1>
-	<h1>New list (albums)</h1>
-    <form action="/app/createAlbumList" method="POST">
-	    <input type="hidden" name="type" value="album">
-        <label for="titleList">What do you want to name this list?</label>
-        <input type="text" name="titleList" value="title">
-		<label for="descriptionList">Description:</label>
-        <textarea  name="descriptionList" placeholder="description"></textarea>
-        <button type="submit">Create List</button>
-    </form>
+	<h1>Create new lists</h1>
 
-		<h1>New list (tracks)</h1>
-    <form action="/app/createTrackList" method="POST">
-		<input type="hidden" name="type" value="track">
-        <label for="titleList">What do you want to name this list?</label>
-        <input type="text" name="titleList" value="title">
-		<label for="descriptionList">Description:</label>
-		<textarea  name="descriptionList" placeholder="description"></textarea>
-        <button type="submit">Create List</button>
-    </form>
+	<div class="form-row">
+		<div class="form-box">
+			<h1>New list (albums)</h1>
+			<form action="/app/createAlbumList" method="POST">
+				<input type="hidden" name="type" value="album">
+				<label for="titleList">What do you want to name this list?</label>
+				<input type="text" name="titleList" value="title">><br><br>
+				<label for="descriptionList">Description:</label><br>
+				<textarea  name="descriptionList" placeholder="description"></textarea><br>
+				<button type="submit">Create List</button>
+			</form>
+		</div>
+
+
+		<div class="form-box">
+			<h1>New list (tracks)</h1>
+		<form action="/app/createTrackList" method="POST">
+			<input type="hidden" name="type" value="track">
+			<label for="titleList">What do you want to name this list?</label>
+			<input type="text" name="titleList" value="title"><br><br>
+			<label for="descriptionList">Description:</label><br>
+			<textarea  name="descriptionList" placeholder="description"></textarea><br>
+			<button type="submit">Create List</button>
+		</form>
+		</div>
+	</div>
 </div>
 
-</div>
+
 {{ end }}
+
