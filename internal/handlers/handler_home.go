@@ -117,10 +117,11 @@ func (cfg *ApiConfig) HandlerTracks(w http.ResponseWriter, r *http.Request, u *d
 func (cfg *ApiConfig) HandlerLists(w http.ResponseWriter, r *http.Request, u *database.User) {
 	fmt.Println("HandlerList ejecutado con el user", u)
 	type returnVals struct {
-		Stylesheet *string
-		UserLists  []database.GetUserListsRow
-		User       *database.User
-		Error      string
+		Stylesheet     *string
+		UserLists      []database.GetUserAlbumListsRow
+		UserTrackLists []database.GetUserTrackListsRow
+		User           *database.User
+		Error          string
 	}
 	tmplPath := filepath.Join("templates", "home", "lists.html")
 	tmpl, err := template.ParseFiles(layout, tmplPath)
@@ -128,22 +129,31 @@ func (cfg *ApiConfig) HandlerLists(w http.ResponseWriter, r *http.Request, u *da
 		http.Error(w, "error parsing files", http.StatusInternalServerError)
 		return
 	}
+	respBody := returnVals{
+		Stylesheet: nil,
+		User:       u,
+	}
 
-	// Esto lo voy a modificar, es un placeholder al igual que la queri
-	uLists, err := cfg.Queries.GetUserLists(context.Background(), u.ID)
-	if err != nil || len(uLists) == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		if err := tmpl.Execute(w, returnVals{User: u, Error: "No Lists found"}); err != nil {
-			fmt.Println("Error al renderizar la plantilla:", err)
+	if u == nil {
+		if err := tmpl.Execute(w, respBody); err != nil {
+			http.Error(w, "error rendering template", http.StatusInternalServerError)
+			return
 		}
 		return
 	}
 
-	respBody := returnVals{
-		Stylesheet: nil,
-		UserLists:  uLists,
-		User:       u,
+	uLists, err := cfg.Queries.GetUserAlbumLists(context.Background(), u.ID)
+	if err != nil {
+		uLists = []database.GetUserAlbumListsRow{}
 	}
+
+	trackLists, err := cfg.Queries.GetUserTrackLists(context.Background(), u.ID)
+	if err != nil {
+		trackLists = []database.GetUserTrackListsRow{}
+	}
+
+	respBody.UserLists = uLists
+	respBody.UserTrackLists = trackLists
 	if err := tmpl.Execute(w, respBody); err != nil {
 		http.Error(w, "error rendering template", http.StatusInternalServerError)
 		return

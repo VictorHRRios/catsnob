@@ -16,16 +16,26 @@
 			Lists
 		</a>
 	</div>
+	{{ if .User }}
 	<div class="create-list">
-        <a class="create_list" href="/app/lists/create_list">New list</a>
+        <a class="create_list" href="/app/lists/create_list"><h1>New list</h1></a><br>
 	</div>
 	<div class="table-lists">
+		<h2>Album Lists</h2>
 		{{ range .UserLists}}
-		<div class="table-elem">
-			<a class="name" href="/app/lists/edit_list/{{ .IDPlaylistA }}"> {{ .Name.String }}</a>
-		</div>
-
+			<div class="table-elem">
+				<a class="name" href="/app/lists/edit_list/{{ .IDPlaylistA }}"> {{ .Name.String  }}</a>
+			</div>
 		{{end}}
+		<h2>Track Lists</h2>
+        {{ range .UserTrackLists}}
+        <div class="table-elem">
+            <a class="name" href="/app/lists/edit_list_tracks/{{ .IDPlaylistA }}"> {{ .Name.String  }}</a>
+        </div>
+        {{end}}
 	</div>
+	{{ else }}
+	You need to be logged in to create lists! <a href="/app/login">Log in!</a>
+	{{ end }}
 </div>
 {{ end }}

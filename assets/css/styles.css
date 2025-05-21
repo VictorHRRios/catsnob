@@ -351,3 +351,20 @@ nav .profile-img {
 .button:hover {
   background-color: #770000; /* Cambio de color al pasar el cursor */
 }
+
+.form-row {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin: 2rem auto;
+  max-width: 1000px;
+}
+
+.form-box {
+  flex: 1;
+  max-width: 400px;
+  background-color: #fff9ec;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
