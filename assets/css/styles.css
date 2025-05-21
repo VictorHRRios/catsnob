@@ -263,3 +263,51 @@ nav .profile-img {
   align-items: left;
   display: grid;
 }
+
+  .shout-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+.shout {
+    display: flex;
+    align-items: flex-start;
+    background-color: #fff9ec;
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    gap: 1rem;
+    max-width: 600px;
+    width: 100%;
+  }
+
+  .shout-left img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .shout-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .shout-right .name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .shout-right .title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #017d0c;
+    margin-bottom: 0.25rem;
+  }
+
+  .shout-right .text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
