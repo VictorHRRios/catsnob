@@ -1,16 +1,5 @@
 # 🐱🎵 Catsnob
 
-```
-                  888                               888      
-                  888                               888      
-                  888                               888      
- .d8888b  8888b.  888888 .d8888b  88888b.   .d88b.  88888b.  
-d88P"        "88b 888    88K      888 "88b d88""88b 888 "88b 
-888      .d888888 888    "Y8888b. 888  888 888  888 888  888 
-Y88b.    888  888 Y88b.       X88 888  888 Y88..88P 888 d88P 
- "Y8888P "Y888888  "Y888  88888P' 888  888  "Y88P"  88888P"  
-```
-
 Catsnob es una plataforma web desarrollada como prototipo para un proyecto de base de datos. Permite explorar, agregar y revisar música (artistas, álbumes y canciones) utilizando [TheAudioDB API](https://www.theaudiodb.com/free_music_api). Los datos se almacenan en una base de datos PostgreSQL, y la interfaz permite a los usuarios interactuar con el contenido musical, escribir reseñas y crear listas personalizadas.
 
 > Este proyecto es un **prototipo académico**, no orientado a producción. Usa muy poco JavaScript, sin frameworks, y está hecho casi completamente en **Go (Golang)**.
@@ -30,7 +19,7 @@ Catsnob es una plataforma web desarrollada como prototipo para un proyecto de ba
 
 ---
 
-## Capturas de pantalla (Sugerencia)
+## Capturas de pantall
 
 Puedes agregar imágenes aquí para mostrar el funcionamiento de la app:
 
